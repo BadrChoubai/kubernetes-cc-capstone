@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/badrchoubai/services/internal/config"
 	"github.com/badrchoubai/services/internal/services/users"
 	"log"
 	"os"
@@ -12,15 +13,16 @@ import (
 	"github.com/badrchoubai/services/internal/server"
 )
 
-func run(ctx context.Context) error {
+func run(ctx context.Context, cfg config.Config) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	infoLog := log.New(os.Stdout, "", log.LstdFlags|log.Lmicroseconds)
-	errLog := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
+	infoLog := log.New(os.Stdout, "", log.LstdFlags)
+	errLog := log.New(os.Stderr, "", log.LstdFlags)
+
 	service := users.NewUsersService()
 	router := server.NewRouter(service)
-	srv := server.NewServer(ctx, router)
+	srv := server.NewServer(ctx, cfg.HttpHost(), cfg.HttpPort(), router)
 
 	var serveError error
 
@@ -52,9 +54,11 @@ func run(ctx context.Context) error {
 
 func main() {
 	rootCtx := context.Background()
+	cfg := config.NewConfig()
 
 	if err := run(
 		rootCtx,
+		cfg,
 	); err != nil {
 		log.Fatalf("error: %+v", err)
 	}
