@@ -1,4 +1,4 @@
-# Capstone Project: AWS Elastic Kubernetes Service
+# Capstone Project: AWS Elastic Kubernetes AuthService
 
 > Related Course Notes and Code: [Docker/Kubernetes Course](https://www.github.com/badrchoubai/docker-kubernetes-course)
 
@@ -8,7 +8,7 @@ Services).
 
 > ## EKS vs ECS
 >
->  | **AWS EKS (Elastic Kubernetes Service)**             | **AWS ECS (Elastic Container Service)**     |
+>  | **AWS EKS (Elastic Kubernetes AuthService)**         | **AWS ECS (Elastic Container AuthService)** |
 >  |:-----------------------------------------------------|:--------------------------------------------|
 >  | Managed service for Kubernetes deployments           | Managed service for Container deployments   |
 >  | No AWS-specific syntax or philosophy required        | AWS-specific syntax and philosophy applies  |

@@ -10,9 +10,9 @@ project.
 - Appropriate permissions and access configured for infrastructure provisioning (e.g., AWS credentials for ECR and EKS
   modules).
 
-## Amazon Elastic Kubernetes Service
+## Amazon Elastic Kubernetes AuthService
 
-> Amazon Elastic Kubernetes Service (Amazon EKS) is a managed Kubernetes service to run Kubernetes in the AWS cloud and
+> Amazon Elastic Kubernetes AuthService (Amazon EKS) is a managed Kubernetes service to run Kubernetes in the AWS cloud and
 > on-premises data centers. In the cloud, Amazon EKS automatically manages the availability and scalability of the
 > Kubernetes control plane nodes responsible for scheduling containers, managing application availability, storing
 > cluster data, and other key tasks.
