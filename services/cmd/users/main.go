@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/badrchoubai/services/internal/services/users"
 	"log"
 	"os"
 	"os/signal"
@@ -17,7 +18,8 @@ func run(ctx context.Context) error {
 
 	infoLog := log.New(os.Stdout, "", log.LstdFlags|log.Lmicroseconds)
 	errLog := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
-	router := server.NewRouter()
+	service := users.NewUsersService()
+	router := server.NewRouter(service)
 	srv := server.NewServer(ctx, router)
 
 	var serveError error
