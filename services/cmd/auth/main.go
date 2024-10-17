@@ -17,8 +17,8 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	infoLog := log.New(os.Stdout, "", log.LstdFlags|log.Lmicroseconds)
-	errLog := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
+	infoLog := log.New(os.Stdout, "", log.LstdFlags)
+	errLog := log.New(os.Stderr, "", log.LstdFlags)
 
 	infoLog.Printf("%+v\n", cfg)
 

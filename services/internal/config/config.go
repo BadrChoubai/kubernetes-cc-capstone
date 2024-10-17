@@ -10,15 +10,21 @@ var _ Config = (*AppConfig)(nil)
 
 type (
 	AppConfig struct {
-		httpHost string
-		httpPort int
+		environment string
+		httpHost    string
+		httpPort    int
 	}
 
 	Config interface {
+		Environment() string
 		HttpHost() string
 		HttpPort() int
 	}
 )
+
+func (c *AppConfig) Environment() string {
+	return c.environment
+}
 
 func (c *AppConfig) HttpHost() string {
 	return c.httpHost
@@ -29,12 +35,14 @@ func (c *AppConfig) HttpPort() int {
 }
 
 func NewConfig() *AppConfig {
+	env := getenv("ENVIRONMENT", "development")
 	host := getenv("HTTP_HOST", "0.0.0.0")
 	port := getenvInt("HTTP_PORT", 8080)
 
 	return &AppConfig{
-		httpHost: host,
-		httpPort: port,
+		environment: env,
+		httpHost:    host,
+		httpPort:    port,
 	}
 }
 
