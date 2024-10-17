@@ -29,11 +29,6 @@ $(BINS): $(BUILD_DIRS)
 	    --env GOMODCACHE="/.cache/gomodcache"                   \
 	    --env ARCH="$(ARCH)"                                    \
 	    --env OS="$(OS)"                                        \
-	    --env VERSION="$(VERSION)"                              \
-	    --env DEBUG="$(DBG)"                                    \
-	    --env GOFLAGS="$(GOFLAGS)"                              \
-	    --env HTTP_PROXY="$(HTTP_PROXY)"                        \
-	    --env HTTPS_PROXY="$(HTTPS_PROXY)"                      \
 	    $(CONTAINER_IMAGE)                                      \
 	    go build -o .dist/$(OS)_$(ARCH)/"$@" ./cmd/"$@"
 

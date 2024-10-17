@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/badrchoubai/services/internal/config"
 	"github.com/badrchoubai/services/internal/services/auth"
 	"log"
 	"os"
@@ -12,16 +13,18 @@ import (
 	"github.com/badrchoubai/services/internal/server"
 )
 
-func run(ctx context.Context) error {
+func run(ctx context.Context, cfg *config.AppConfig) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	infoLog := log.New(os.Stdout, "", log.LstdFlags|log.Lmicroseconds)
 	errLog := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
 
+	infoLog.Printf("%+v\n", cfg)
+
 	service := auth.NewAuthService()
 	router := server.NewRouter(service)
-	srv := server.NewServer(ctx, router)
+	srv := server.NewServer(ctx, cfg.HttpHost(), cfg.HttpPort(), router)
 
 	var serveError error
 
@@ -31,11 +34,12 @@ func run(ctx context.Context) error {
 		}
 	}()
 
-	infoLog.Printf("https://%s", srv.Addr())
+	infoLog.Printf("http://%s/health", srv.Addr())
 
 	if serveError != nil {
 		return serveError
 	}
+
 	// Wait for shutdown signal
 	<-ctx.Done()
 	infoLog.Print("shutdown signal received")
@@ -53,9 +57,11 @@ func run(ctx context.Context) error {
 
 func main() {
 	rootCtx := context.Background()
+	cfg := config.NewConfig()
 
 	if err := run(
 		rootCtx,
+		cfg,
 	); err != nil {
 		log.Fatalf("error: %+v", err)
 	}

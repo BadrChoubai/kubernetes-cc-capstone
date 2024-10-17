@@ -38,16 +38,16 @@ func (s *server) Serve() error {
 	return nil
 }
 
-func NewServer(ctx context.Context, handler http.Handler) Server {
+func NewServer(ctx context.Context, host string, port int, handler http.Handler) Server {
 	const (
-		maxTimeout   = 120 * time.Second
+		maxTimeout   = 60 * time.Second
 		readTimeout  = 5 * time.Second
 		writeTimeout = 2 * readTimeout
 		idleTimeout  = maxTimeout
 	)
 
 	httpserver := &http.Server{
-		Addr:         net.JoinHostPort("0.0.0.0", strconv.Itoa(8080)),
+		Addr:         net.JoinHostPort(host, strconv.Itoa(port)),
 		Handler:      handler,
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
