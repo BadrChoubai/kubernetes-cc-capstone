@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/badrchoubai/services/pkg/service"
+	"github.com/badrchoubai/services/internal/services"
 	"net/http"
 
 	"github.com/badrchoubai/services/internal/middleware"
@@ -15,11 +15,11 @@ func addRoutes(mux *http.ServeMux) {
 
 // addRoutes is where the entire API surface is mapped
 // https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/#map-the-entire-api-surface-in-routesgo
-func addServiceRoutes(mux *http.ServeMux, service service.Service) {
+func addServiceRoutes(mux *http.ServeMux, service services.Service) {
 	service.RegisterRouter(mux)
 }
 
-func NewRouter(service service.Service) http.Handler {
+func NewRouter(service services.Service) http.Handler {
 	mux := http.NewServeMux()
 
 	addRoutes(mux)
