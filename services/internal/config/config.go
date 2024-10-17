@@ -13,12 +13,14 @@ type (
 		environment string
 		httpHost    string
 		httpPort    int
+		logLevel    int
 	}
 
 	Config interface {
 		Environment() string
 		HttpHost() string
 		HttpPort() int
+		LogLevel() int
 	}
 )
 
@@ -34,15 +36,21 @@ func (c *AppConfig) HttpPort() int {
 	return c.httpPort
 }
 
+func (c *AppConfig) LogLevel() int {
+	return c.logLevel
+}
+
 func NewConfig() *AppConfig {
 	env := getenv("ENVIRONMENT", "development")
 	host := getenv("HTTP_HOST", "0.0.0.0")
 	port := getenvInt("HTTP_PORT", 8080)
+	logLevel := getenvInt("LOG_LEVEL", 1)
 
 	return &AppConfig{
 		environment: env,
 		httpHost:    host,
 		httpPort:    port,
+		logLevel:    logLevel,
 	}
 }
 

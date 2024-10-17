@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"github.com/badrchoubai/services/internal/services/auth"
 	"log"
 	"os"
@@ -17,10 +18,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	infoLog := log.New(os.Stdout, "", log.LstdFlags)
-	errLog := log.New(os.Stderr, "", log.LstdFlags)
-
-	infoLog.Printf("%+v\n", cfg)
+	logger := zap.NewZapLogger(cfg.LogLevel())
 
 	service := auth.NewAuthService()
 	router := server.NewRouter(service)
@@ -34,7 +32,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		}
 	}()
 
-	infoLog.Printf("http://%s/health", srv.Addr())
+	logger.Info("server started")
 
 	if serveError != nil {
 		return serveError
@@ -42,13 +40,13 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 
 	// Wait for shutdown signal
 	<-ctx.Done()
-	infoLog.Print("shutdown signal received")
+	logger.Info("shutdown signal received")
 
 	// Allow some time for graceful shutdown
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
-		errLog.Print(err, "server shutdown failed")
+		logger.Error(err, "server shutdown failed")
 		return err
 	}
 
