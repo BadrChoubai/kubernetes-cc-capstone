@@ -2,27 +2,27 @@ package main
 
 import (
 	"context"
-	"github.com/badrchoubai/services/internal/config"
-	"github.com/badrchoubai/services/internal/observability/logging/zap"
-	"github.com/badrchoubai/services/internal/services/users"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"github.com/badrchoubai/services/internal/server"
+	"github.com/badrchoubai/services/internal/services/users"
 )
 
-func run(ctx context.Context, cfg config.Config) error {
+func run(ctx context.Context, cfg *config.AppConfig) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	logger := zap.NewZapLogger(cfg.LogLevel())
 
-	service := users.NewUsersService()
-	router := server.NewRouter(service)
-	srv := server.NewServer(ctx, cfg.HttpHost(), cfg.HttpPort(), router)
+	service := users.NewUsersService(logger)
+	router := server.NewRouter(logger, service)
+	srv := server.NewServer(ctx, cfg, logger, router)
 
 	var serveError error
 

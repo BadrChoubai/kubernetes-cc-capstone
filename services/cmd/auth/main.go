@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
-	"github.com/badrchoubai/services/internal/config"
-	"github.com/badrchoubai/services/internal/observability/logging/zap"
-	"github.com/badrchoubai/services/internal/services/auth"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"github.com/badrchoubai/services/internal/server"
+	"github.com/badrchoubai/services/internal/services/auth"
 )
 
 func run(ctx context.Context, cfg *config.AppConfig) error {
@@ -20,9 +20,9 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 
 	logger := zap.NewZapLogger(cfg.LogLevel())
 
-	service := auth.NewAuthService()
-	router := server.NewRouter(service)
-	srv := server.NewServer(ctx, cfg.HttpHost(), cfg.HttpPort(), router)
+	service := auth.NewAuthService(logger)
+	router := server.NewRouter(logger, service)
+	srv := server.NewServer(ctx, cfg, logger, router)
 
 	var serveError error
 

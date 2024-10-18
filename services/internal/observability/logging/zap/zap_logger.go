@@ -1,8 +1,9 @@
 package zap
 
 import (
-	"github.com/badrchoubai/services/internal/observability/logging"
 	"go.uber.org/zap"
+
+	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
 type zapLogger struct {
@@ -30,8 +31,8 @@ func NewZapLogger(level int) logging.Logger {
 }
 
 // Info makes call to zap library's Info func
-func (l *zapLogger) Info(message string) {
-	l.logger.Info(message)
+func (l *zapLogger) Info(message string, fields ...zap.Field) {
+	l.logger.Info(message, fields...)
 }
 
 // Error makes call to zap library's Error func
