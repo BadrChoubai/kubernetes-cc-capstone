@@ -19,6 +19,7 @@
 
 !Makefile
 !build/*/**
+!config.md
 !.editorconfig
 !.golangci.yaml
 !.pre-commit-config.yaml

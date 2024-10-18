@@ -13,7 +13,7 @@ This project uses a `Makefile` to build Go binaries and create Docker images for
 automates the process of building and packaging your applications into containers, making it easier to manage
 dependencies and deployment.
 
-## Workflow
+## Build Workflow
 
 - [Run the Build Process](#run-the-build-process)
 - [Build Container Images](#build-docker-images)
