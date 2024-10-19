@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/badrchoubai/services/internal/observability/logging"
+	"github.com/badrchoubai/services/internal/observability"
 	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"net/http"
 
@@ -9,14 +9,14 @@ import (
 	"github.com/badrchoubai/services/internal/services"
 )
 
-func NewRouter(logger logging.Logger, service services.ServiceInterface) http.Handler {
+func NewRouter(logger *logging.Logger, service services.ServiceInterface) http.Handler {
 	mux := http.NewServeMux()
 
 	addRoutes(mux, service)
 
 	var handler http.Handler = mux
 	handler = middleware.Heartbeat(handler, "/health")
-	handler = zap.RequestLoggingMiddleware(handler, logger)
+	handler = observability.RequestLoggingMiddleware(handler, logger)
 
 	return handler
 }

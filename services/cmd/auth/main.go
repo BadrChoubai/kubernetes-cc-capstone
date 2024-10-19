@@ -20,16 +20,19 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	logger := zap.NewZapLogger(cfg.LogLevel())
+	logger, err := logging.NewLogger()
+	if err != nil {
+		return err
+	}
 
 	authService := users.NewUsersService(
 		services.WithName("UserService"),
-		services.WithLogger(&logger),
+		services.WithLogger(logger),
 		services.WithEncoderDecoder(encoding.NewEncoderDecoder(logger)),
 	)
 
 	router := server.NewRouter(logger, authService)
-	srv := server.NewServer(ctx, cfg, logger, router)
+	srv := server.NewServer(ctx, cfg, router)
 
 	var serveError error
 
@@ -53,7 +56,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
-		logger.Error(err, "server shutdown failed")
+		logger.Error("server shutdown failed", err)
 		return err
 	}
 

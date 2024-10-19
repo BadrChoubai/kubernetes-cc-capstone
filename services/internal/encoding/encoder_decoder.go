@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/badrchoubai/services/internal/observability/logging"
+	"github.com/badrchoubai/services/internal/observability/logging/zap"
 )
 
 type (
@@ -16,7 +16,7 @@ type (
 
 	// ServerEncoderDecoder is our concrete implementation of EncoderDecoder.
 	ServerEncoderDecoder struct {
-		logger logging.Logger
+		logger *logging.Logger
 	}
 
 	encoder interface {
@@ -28,7 +28,7 @@ type (
 	}
 )
 
-func NewEncoderDecoder(logger logging.Logger) *ServerEncoderDecoder {
+func NewEncoderDecoder(logger *logging.Logger) *ServerEncoderDecoder {
 	return &ServerEncoderDecoder{
 		logger: logger,
 	}
@@ -38,7 +38,7 @@ func (sec *ServerEncoderDecoder) Encode(w http.ResponseWriter, status int, v any
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(v); err != nil {
-		sec.logger.Error(err, "encoding json")
+		sec.logger.Error("encoding JSON", err)
 		return fmt.Errorf("encode json: %w", err)
 	}
 	return nil
@@ -46,7 +46,7 @@ func (sec *ServerEncoderDecoder) Encode(w http.ResponseWriter, status int, v any
 
 func (sec *ServerEncoderDecoder) Decode(r *http.Request, dest any) error {
 	if err := json.NewDecoder(r.Body).Decode(&dest); err != nil {
-		sec.logger.Error(err, "decoding json")
+		sec.logger.Error("decoding JSON", err)
 		return fmt.Errorf("decode json: %w", err)
 	}
 	return nil

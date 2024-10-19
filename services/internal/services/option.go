@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/badrchoubai/services/internal/encoding"
-	"github.com/badrchoubai/services/internal/observability/logging"
+	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 	"sync"
 )
 

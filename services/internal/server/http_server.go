@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/badrchoubai/services/internal/config"
-	"github.com/badrchoubai/services/internal/observability/logging"
 	"net"
 	"net/http"
 	"strconv"
@@ -40,7 +39,7 @@ func (s *server) Serve() error {
 	return nil
 }
 
-func NewServer(ctx context.Context, cfg *config.AppConfig, logger logging.Logger, handler http.Handler) Server {
+func NewServer(ctx context.Context, cfg *config.AppConfig, handler http.Handler) Server {
 	const (
 		maxTimeout   = 60 * time.Second
 		readTimeout  = 5 * time.Second
