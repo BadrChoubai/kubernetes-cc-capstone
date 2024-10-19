@@ -1,6 +1,11 @@
 package users
 
-import "net/http"
+import (
+	"github.com/badrchoubai/services/internal/services"
+	"net/http"
+)
+
+var _ services.ServiceInterface = (*UserService)(nil)
 
 func (a *UserService) RegisterRouter(router *http.ServeMux) {
 	router.HandleFunc("/register", a.RegisterUserHandler)

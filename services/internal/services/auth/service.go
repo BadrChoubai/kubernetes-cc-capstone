@@ -1,26 +1,30 @@
 package auth
 
 import (
-	"github.com/badrchoubai/services/internal/encoding"
-	"github.com/badrchoubai/services/internal/observability/logging"
-	"sync"
-
 	"github.com/badrchoubai/services/internal/services"
+	"sync"
 )
-
-var _ services.Service = (*AuthService)(nil)
 
 // AuthService implements Service
 type AuthService struct {
-	ServiceMutex   sync.Mutex
-	encoderDecoder *encoding.ServerEncoderDecoder
+	Service *services.Service
 }
 
-func NewAuthService(logger logging.Logger) services.Service {
-	ser := &AuthService{
-		ServiceMutex:   sync.Mutex{},
-		encoderDecoder: encoding.NewEncoderDecoder(logger),
+var _ services.ServiceInterface = (*AuthService)(nil)
+
+func NewAuthService(opts ...services.Option) *AuthService {
+	options := &services.Options{
+		Name:         "AuthService",
+		ServiceMutex: &sync.Mutex{},
 	}
 
-	return ser
+	for _, opt := range opts {
+		opt.Apply(options)
+	}
+
+	return &AuthService{
+		Service: &services.Service{
+			Name: options.Name,
+		},
+	}
 }

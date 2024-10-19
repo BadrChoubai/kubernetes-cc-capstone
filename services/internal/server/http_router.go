@@ -9,7 +9,7 @@ import (
 	"github.com/badrchoubai/services/internal/services"
 )
 
-func NewRouter(logger logging.Logger, service services.Service) http.Handler {
+func NewRouter(logger logging.Logger, service services.ServiceInterface) http.Handler {
 	mux := http.NewServeMux()
 
 	addRoutes(mux, service)
@@ -23,7 +23,7 @@ func NewRouter(logger logging.Logger, service services.Service) http.Handler {
 
 // addRoutes is where the entire API surface is mapped
 // https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/#map-the-entire-api-surface-in-routesgo
-func addRoutes(mux *http.ServeMux, service services.Service) {
+func addRoutes(mux *http.ServeMux, service services.ServiceInterface) {
 	if service != nil {
 		addServiceRoutes(mux, service)
 	}
@@ -31,6 +31,6 @@ func addRoutes(mux *http.ServeMux, service services.Service) {
 	mux.Handle("/*", http.NotFoundHandler())
 }
 
-func addServiceRoutes(mux *http.ServeMux, service services.Service) {
+func addServiceRoutes(mux *http.ServeMux, service services.ServiceInterface) {
 	service.RegisterRouter(mux)
 }

@@ -1,26 +1,30 @@
 package users
 
 import (
-	"github.com/badrchoubai/services/internal/encoding"
-	"github.com/badrchoubai/services/internal/observability/logging"
-	"sync"
-
 	"github.com/badrchoubai/services/internal/services"
+	"sync"
 )
-
-var _ services.Service = (*UserService)(nil)
 
 // UserService implements Service
 type UserService struct {
-	ServiceMutex   sync.Mutex
-	encoderDecoder *encoding.ServerEncoderDecoder
+	Service *services.Service
 }
 
-func NewUsersService(logger logging.Logger) services.Service {
-	ser := &UserService{
-		ServiceMutex:   sync.Mutex{},
-		encoderDecoder: encoding.NewEncoderDecoder(logger),
+var _ services.ServiceInterface = (*UserService)(nil)
+
+func NewUsersService(opts ...services.Option) *UserService {
+	options := &services.Options{
+		Name:         "UserService",
+		ServiceMutex: &sync.Mutex{},
 	}
 
-	return ser
+	for _, opt := range opts {
+		opt.Apply(options)
+	}
+
+	return &UserService{
+		Service: &services.Service{
+			Name: options.Name,
+		},
+	}
 }

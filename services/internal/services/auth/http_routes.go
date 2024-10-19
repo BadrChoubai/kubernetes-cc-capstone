@@ -1,6 +1,11 @@
 package auth
 
-import "net/http"
+import (
+	"github.com/badrchoubai/services/internal/services"
+	"net/http"
+)
+
+var _ services.ServiceInterface = (*AuthService)(nil)
 
 func (a *AuthService) RegisterRouter(router *http.ServeMux) {
 	router.HandleFunc("/auth/generateToken", a.GenerateTokenHandler)

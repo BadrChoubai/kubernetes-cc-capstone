@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/badrchoubai/services/internal/encoding"
+	"github.com/badrchoubai/services/internal/services"
 	"log"
 	"os"
 	"os/signal"
@@ -20,8 +22,13 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 
 	logger := zap.NewZapLogger(cfg.LogLevel())
 
-	service := users.NewUsersService(logger)
-	router := server.NewRouter(logger, service)
+	userService := users.NewUsersService(
+		services.WithName("UserService"),
+		services.WithLogger(&logger),
+		services.WithEncoderDecoder(encoding.NewEncoderDecoder(logger)),
+	)
+
+	router := server.NewRouter(logger, userService)
 	srv := server.NewServer(ctx, cfg, logger, router)
 
 	var serveError error
