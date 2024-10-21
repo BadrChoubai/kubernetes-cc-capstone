@@ -74,6 +74,19 @@ push: image
 lint: # HELP runs golangci-lint linters
 lint:
 	golangci-lint run
+	$(MAKE) -C ./api swag-fmt
+
+####################################################################################################
+# DOCUMENTATION TASKS
+####################################################################################################
+
+docs/api: # @HELP run Makefile tasks for API documentation
+docs/api:
+	$(MAKE) -C ./api
+
+docs/api/clean: # @HELP run Makefile clean task for API Documentation
+docs/api/clean:
+	$(MAKE) -C ./api clean
 
 SHELL := /usr/bin/env bash -o errexit -o pipefail
 .DEFAULT_GOAL = all
