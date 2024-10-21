@@ -5,20 +5,20 @@ import (
 	"net/http"
 )
 
-var _ services.ServiceInterface = (*UserService)(nil)
+var _ services.ServiceInterface = (*Service)(nil)
 
-func (a *UserService) RegisterRouter(router *http.ServeMux) {
+func (a *Service) RegisterRouter(router *http.ServeMux) {
 	router.HandleFunc("/register", a.RegisterUserHandler)
 	router.HandleFunc("/login", a.LoginUserHandler)
 }
 
-func (a *UserService) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
+func (a *Service) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("{}"))
 }
 
-func (a *UserService) LoginUserHandler(w http.ResponseWriter, r *http.Request) {
+func (a *Service) LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("{}"))

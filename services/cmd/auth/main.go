@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/badrchoubai/services/internal/encoding"
 	"github.com/badrchoubai/services/internal/services"
-	"github.com/badrchoubai/services/internal/services/users"
+	"github.com/badrchoubai/services/internal/services/auth"
 	"log"
 	"os"
 	"os/signal"
@@ -25,8 +25,8 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	authService := users.NewUsersService(
-		services.WithName("UserService"),
+	authService := auth.NewAuthService(
+		services.WithName("AuthService"),
 		services.WithLogger(logger),
 		services.WithEncoderDecoder(encoding.NewEncoderDecoder(logger)),
 	)
