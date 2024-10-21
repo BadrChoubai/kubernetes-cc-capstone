@@ -18,6 +18,7 @@
 !LICENSE
 
 !Makefile
+!api/*/**
 !build/*/**
 !config.md
 !.editorconfig

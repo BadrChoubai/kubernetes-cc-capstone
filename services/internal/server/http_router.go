@@ -1,11 +1,11 @@
 package server
 
 import (
-	"github.com/badrchoubai/services/internal/observability"
-	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"net/http"
 
 	"github.com/badrchoubai/services/internal/middleware"
+	"github.com/badrchoubai/services/internal/observability"
+	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"github.com/badrchoubai/services/internal/services"
 )
 

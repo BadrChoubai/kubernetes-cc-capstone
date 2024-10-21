@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/badrchoubai/services/internal/encoding"
-	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
-	"github.com/badrchoubai/services/internal/services"
 	"log"
 	"os"
 	"os/signal"
@@ -12,7 +9,10 @@ import (
 	"time"
 
 	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/encoding"
+	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 	"github.com/badrchoubai/services/internal/server"
+	"github.com/badrchoubai/services/internal/services"
 	"github.com/badrchoubai/services/internal/services/users"
 )
 

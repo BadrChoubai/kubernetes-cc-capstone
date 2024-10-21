@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/badrchoubai/services/internal/encoding"
-	"github.com/badrchoubai/services/internal/services"
-	"github.com/badrchoubai/services/internal/services/auth"
 	"log"
 	"os"
 	"os/signal"
@@ -12,8 +9,11 @@ import (
 	"time"
 
 	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/encoding"
 	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"github.com/badrchoubai/services/internal/server"
+	"github.com/badrchoubai/services/internal/services"
+	"github.com/badrchoubai/services/internal/services/auth"
 )
 
 func run(ctx context.Context, cfg *config.AppConfig) error {

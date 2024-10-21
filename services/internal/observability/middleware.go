@@ -1,10 +1,11 @@
 package observability
 
 import (
-	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
+
+	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 )
 
 // RequestLoggingMiddleware logs incoming requests on global HTTP handler

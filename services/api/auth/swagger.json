@@ -1,0 +1,32 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This authorization API is used to generate tokens for a given user",
+        "title": "Auth API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "0.0.0.0:8080",
+    "basePath": "/auth/v1",
+    "paths": {
+        "/auth/v1/generateToken": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Generate token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

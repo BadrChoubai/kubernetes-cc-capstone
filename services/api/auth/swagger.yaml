@@ -1,0 +1,21 @@
+basePath: /auth/v1
+host: 0.0.0.0:8080
+info:
+  contact: {}
+  description: This authorization API is used to generate tokens for a given user
+  title: Auth API
+  version: "1.0"
+paths:
+  /auth/v1/generateToken:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Generate token
+swagger: "2.0"

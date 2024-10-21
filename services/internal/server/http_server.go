@@ -3,11 +3,12 @@ package server
 import (
 	"context"
 	"errors"
-	"github.com/badrchoubai/services/internal/config"
 	"net"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/badrchoubai/services/internal/config"
 )
 
 type (

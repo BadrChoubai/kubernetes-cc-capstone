@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"github.com/badrchoubai/services/internal/services"
 	"sync"
+
+	"github.com/badrchoubai/services/internal/services"
 )
 
 // Service implements Service

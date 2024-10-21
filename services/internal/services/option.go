@@ -1,9 +1,10 @@
 package services
 
 import (
+	"sync"
+
 	"github.com/badrchoubai/services/internal/encoding"
 	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
-	"sync"
 )
 
 type Options struct {

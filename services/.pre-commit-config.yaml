@@ -2,8 +2,8 @@ repos:
   -   repo: https://github.com/golangci/golangci-lint
       rev: v1.61.0
       hooks:
-      - id: golangci-lint-full
-        name: golangci-lint-full
+      - id: golangci-lint-fix
+        name: golangci-lint-fix
         description: Fast linters runner for Go. Runs on all files in the repo. Use this hook if you use pre-commit in CI.
         entry: golangci-lint run --fix
         types: [go]
