@@ -9,7 +9,7 @@ Container/Image artifacts created while building the capstone project.
 - Go installed on your local machine (if not using Docker exclusively).
 - A configured Docker registry where images will be pushed.
 
-This project uses a `Makefile` to build Go binaries and create Docker images for different platforms. The Makefile
+This project uses s `Makefile` to build Go binaries and create Docker images for different platforms. The Makefile
 automates the process of building and packaging your applications into containers, making it easier to manage
 dependencies and deployment.
 
@@ -67,4 +67,4 @@ make clean
    - `.dist/`: Output directory for compiled binaries.
    - `.go/`: Caching directory for Go modules and builds.
    - `.dockerfile/`: Output directory for dynamically generated Dockerfile for building specific binaries.
-   - `.image/`: Output directory for marker file indicating successful build of a Docker image for a binary.
+   - `.image/`: Output directory for marker file indicating successful build of s Docker image for s binary.

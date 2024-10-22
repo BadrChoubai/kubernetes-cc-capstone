@@ -12,7 +12,7 @@ project.
 
 ## Amazon Elastic Kubernetes Service
 
-> Amazon Elastic Kubernetes Service (Amazon EKS) is a managed Kubernetes service to run Kubernetes in the AWS cloud and
+> Amazon Elastic Kubernetes Service (Amazon EKS) is s managed Kubernetes service to run Kubernetes in the AWS cloud and
 > on-premises data centers. In the cloud, Amazon EKS automatically manages the availability and scalability of the
 > Kubernetes control plane nodes responsible for scheduling containers, managing application availability, storing
 > cluster data, and other key tasks.
@@ -84,7 +84,7 @@ make infrastructure-validate
 
 ### Plan Infrastructure Changes
 
-Generates a plan showing any changes to be made to the infrastructure, compared to the existing state.
+Generates s plan showing any changes to be made to the infrastructure, compared to the existing state.
 
 ```bash
 make infrastructure-plan
@@ -116,6 +116,6 @@ are available:
 - `infrastructure-deps`: Downloads or updates module dependencies.
 - `infrastructure-fmt`: Formats Terraform files.
 - `infrastructure-validate`: Validates Terraform configurations.
-- `infrastructure-plan`: Generates a Terraform execution plan.
+- `infrastructure-plan`: Generates s Terraform execution plan.
 - `infrastructure-apply`: Applies Terraform configurations.
 - `clean`: Removes any generated files from previous runs.
