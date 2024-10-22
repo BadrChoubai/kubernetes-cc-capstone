@@ -1,17 +1,21 @@
 package auth
 
 import (
+	"github.com/badrchoubai/services/internal/encoding"
+	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 	"sync"
 
 	"github.com/badrchoubai/services/internal/services"
 )
 
-// Service implements Service
-type Service struct {
-	Service *services.Service
-}
+var _ services.IService = (*Service)(nil)
 
-var _ services.ServiceInterface = (*Service)(nil)
+type Service struct {
+	Name           string
+	ServiceMutex   *sync.Mutex
+	Logger         *logging.Logger
+	EncoderDecoder *encoding.ServerEncoderDecoder
+}
 
 func NewAuthService(opts ...services.Option) *Service {
 	options := &services.Options{
@@ -24,8 +28,9 @@ func NewAuthService(opts ...services.Option) *Service {
 	}
 
 	return &Service{
-		Service: &services.Service{
-			Name: options.Name,
-		},
+		Name:           options.Name,
+		ServiceMutex:   options.ServiceMutex,
+		EncoderDecoder: options.EncoderDecoder,
+		Logger:         options.Logger,
 	}
 }
