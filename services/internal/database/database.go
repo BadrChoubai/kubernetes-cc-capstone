@@ -3,9 +3,10 @@ package database
 import (
 	"context"
 	"database/sql"
+	_ "github.com/lib/pq"
+
 	"github.com/badrchoubai/services/internal/config"
 	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
-	_ "github.com/lib/pq"
 )
 
 var _ IDatabase = (*Database)(nil)

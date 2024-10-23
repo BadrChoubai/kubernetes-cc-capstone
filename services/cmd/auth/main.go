@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/badrchoubai/services/internal/database"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -10,11 +10,12 @@ import (
 	"time"
 
 	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/encoding"
 	"github.com/badrchoubai/services/internal/observability/logging/zap"
 	"github.com/badrchoubai/services/internal/server"
-	"github.com/badrchoubai/services/internal/services"
-	"github.com/badrchoubai/services/internal/services/auth"
+	"github.com/badrchoubai/services/internal/service"
+	services "github.com/badrchoubai/services/internal/services/auth"
 )
 
 func run(ctx context.Context, cfg *config.AppConfig) error {
@@ -31,14 +32,15 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	authService := auth.NewAuthService(
-		services.WithName("AuthService"),
-		services.WithLogger(logger),
-		services.WithEncoderDecoder(encoding.NewEncoderDecoder(logger)),
-		services.WithDbConnection(db),
+	authService := services.NewAuthService(
+		"auth-service",
+		service.WithLogger(logger),
+		service.WithEncoderDecoder(encoding.NewEncoderDecoder(logger)),
+		service.WithDbConnection(db),
 	)
+	fmt.Println(authService.Name)
 
-	router := server.NewRouter(logger, authService)
+	router := server.NewRouter(logger)
 	srv := server.NewServer(ctx, cfg, router)
 
 	var serveError error

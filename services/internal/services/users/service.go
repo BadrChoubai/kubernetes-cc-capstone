@@ -1,37 +1,7 @@
 package users
 
-import (
-	"github.com/badrchoubai/services/internal/encoding"
-	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
-	"sync"
+import "github.com/badrchoubai/services/internal/service"
 
-	"github.com/badrchoubai/services/internal/services"
-)
-
-var _ services.IService = (*Service)(nil)
-
-// Service implements ServiceInterface
-type Service struct {
-	Name           string
-	ServiceMutex   *sync.Mutex
-	Logger         *logging.Logger
-	EncoderDecoder *encoding.ServerEncoderDecoder
-}
-
-func NewUsersService(opts ...services.Option) *Service {
-	options := &services.Options{
-		Name:         "Service",
-		ServiceMutex: &sync.Mutex{},
-	}
-
-	for _, opt := range opts {
-		opt.Apply(options)
-	}
-
-	return &Service{
-		Name:           options.Name,
-		ServiceMutex:   options.ServiceMutex,
-		EncoderDecoder: options.EncoderDecoder,
-		Logger:         options.Logger,
-	}
+func NewUsersService(name string, opts ...service.Option) *service.Service {
+	return service.NewService(name, opts...)
 }

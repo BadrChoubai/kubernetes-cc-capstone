@@ -1,8 +1,9 @@
-package auth
+package services
 
 import (
-	"github.com/badrchoubai/services/internal/validator"
 	"time"
+
+	"github.com/badrchoubai/services/internal/validator"
 )
 
 type (

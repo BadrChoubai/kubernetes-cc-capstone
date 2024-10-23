@@ -2,9 +2,10 @@ package users
 
 import (
 	"fmt"
-	"github.com/badrchoubai/services/internal/validator"
 	"regexp"
 	"time"
+
+	"github.com/badrchoubai/services/internal/validator"
 )
 
 type (
