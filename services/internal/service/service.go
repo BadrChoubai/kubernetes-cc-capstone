@@ -8,6 +8,8 @@ import (
 	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 )
 
+var _ IService = (*Service)(nil)
+
 type Service struct {
 	Name           string
 	ServiceMutex   *sync.Mutex

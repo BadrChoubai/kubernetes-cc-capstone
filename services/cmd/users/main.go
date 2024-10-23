@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"log"
 	"os"
 	"os/signal"
@@ -12,7 +13,10 @@ import (
 	"github.com/badrchoubai/services/internal/config"
 	"github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/encoding"
+	"github.com/badrchoubai/services/internal/middleware"
+	"github.com/badrchoubai/services/internal/observability"
 	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
+	"github.com/badrchoubai/services/internal/router"
 	"github.com/badrchoubai/services/internal/server"
 	"github.com/badrchoubai/services/internal/service"
 	"github.com/badrchoubai/services/internal/services/users"
@@ -40,8 +44,14 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	)
 	fmt.Println(usersService.Name)
 
-	router := server.NewRouter(logger)
-	srv := server.NewServer(ctx, cfg, router)
+	httpRouter := router.NewRouter(
+		fmt.Sprintf("%s-router", usersService.Name),
+		router.WithLogger(logger),
+		router.WithService(usersService),
+		router.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
+		router.WithMiddleware(middleware.Heartbeat("/health")),
+	)
+	srv := server.NewServer(ctx, cfg, httpRouter)
 
 	var serveError error
 
@@ -51,7 +61,8 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		}
 	}()
 
-	logger.Info("server started")
+	logger.Info("server started",
+		zap.String("service", usersService.Name))
 
 	if serveError != nil {
 		return serveError

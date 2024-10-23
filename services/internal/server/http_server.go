@@ -9,7 +9,10 @@ import (
 	"time"
 
 	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/router"
 )
+
+var _ Server = (*server)(nil)
 
 type (
 	Server interface {
@@ -40,7 +43,7 @@ func (s *server) Serve() error {
 	return nil
 }
 
-func NewServer(ctx context.Context, cfg *config.AppConfig, handler http.Handler) Server {
+func NewServer(ctx context.Context, cfg *config.AppConfig, router *router.Router) Server {
 	const (
 		maxTimeout   = 60 * time.Second
 		readTimeout  = 5 * time.Second
@@ -50,7 +53,7 @@ func NewServer(ctx context.Context, cfg *config.AppConfig, handler http.Handler)
 
 	httpserver := &http.Server{
 		Addr:         net.JoinHostPort(cfg.HttpHost(), strconv.Itoa(cfg.HttpPort())),
-		Handler:      handler,
+		Handler:      router.ApplyMiddleware(router.Handler),
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 		IdleTimeout:  idleTimeout,
