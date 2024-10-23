@@ -1,6 +1,7 @@
 include build/root/config.mk
+include .env
 
-BINS ?= users auth
+BINS ?= auth
 IMAGE_DOTFILES = $(foreach bin,$(BINS),.image-$(bin)-$(TAG))
 
 BUILD_DIRS := .dist/$(OS)_$(ARCH)	\
@@ -75,6 +76,26 @@ lint: # HELP runs golangci-lint linters
 lint:
 	golangci-lint run
 	$(MAKE) -C ./api swag-fmt
+
+####################################################################################################
+# Database Tasks
+# https://github.com/golang-migrate/migrate/tree/master/cmd/migrate#migrate-cli
+####################################################################################################
+
+db/connect: # @HELP connect to locally running database
+db/connect:
+	$(MAKE) -C ./migrations db/connect/psql
+
+db/migrations/up: # @HELP run migrations to create database tables
+db/migrations/up:
+	$(MAKE) -C ./migrations db/migrations/up
+
+db/migrations/down: # @HELP run migrations to teardown database tables
+db/migrations/down:
+	$(MAKE) -C ./migrations db/migrations/down
+
+db/migrations/refresh: # @HELP refresh database tables
+db/migrations/refresh: db/migrations/down db/migrations/up
 
 SHELL := /usr/bin/env bash -o errexit -o pipefail
 .DEFAULT_GOAL = all

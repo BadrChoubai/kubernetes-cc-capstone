@@ -6,11 +6,14 @@
 
 # Ignore everything
 *
+vendor
 
 # But not these files...
 !/.gitignore
 
 !*.go
+!*.sql
+!*.md
 !go.sum
 !go.mod
 
@@ -20,11 +23,13 @@
 !Makefile
 !api/*/**
 !build/*/**
-!config.md
+!migrations
+
 !.env.example
 !.editorconfig
 !.golangci.yaml
 !.pre-commit-config.yaml
+
 
 # ...even if they are in subdirectories
 !*/
