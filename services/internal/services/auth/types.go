@@ -1,6 +1,9 @@
 package auth
 
-import "time"
+import (
+	"github.com/badrchoubai/services/internal/validator"
+	"time"
+)
 
 type (
 	Token struct {
@@ -17,3 +20,8 @@ type (
 		DeleteAllForUser(scope string, userID int64) error
 	}
 )
+
+func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
+	v.Check(tokenPlaintext != "", "token", "must be provided")
+	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
+}

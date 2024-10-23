@@ -1,6 +1,7 @@
 package auth
 
 import (
+	databaes "github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/encoding"
 	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 	"sync"
@@ -15,6 +16,7 @@ type Service struct {
 	ServiceMutex   *sync.Mutex
 	Logger         *logging.Logger
 	EncoderDecoder *encoding.ServerEncoderDecoder
+	DbConnection   *databaes.Database
 }
 
 func NewAuthService(opts ...services.Option) *Service {
@@ -32,5 +34,6 @@ func NewAuthService(opts ...services.Option) *Service {
 		ServiceMutex:   options.ServiceMutex,
 		EncoderDecoder: options.EncoderDecoder,
 		Logger:         options.Logger,
+		DbConnection:   options.DbConnection,
 	}
 }

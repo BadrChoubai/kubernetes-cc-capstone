@@ -21,6 +21,7 @@
 !api/*/**
 !build/*/**
 !config.md
+!.env.example
 !.editorconfig
 !.golangci.yaml
 !.pre-commit-config.yaml

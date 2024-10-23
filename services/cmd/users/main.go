@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/badrchoubai/services/internal/database"
 	"log"
 	"os"
 	"os/signal"
@@ -25,10 +26,16 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
+	db, err := database.NewConnection(ctx, logger, cfg.DbConn())
+	if err != nil {
+		return err
+	}
+
 	userService := users.NewUsersService(
 		services.WithName("UserService"),
 		services.WithLogger(logger),
 		services.WithEncoderDecoder(encoding.NewEncoderDecoder(logger)),
+		services.WithDbConnection(db),
 	)
 
 	router := server.NewRouter(logger, userService)

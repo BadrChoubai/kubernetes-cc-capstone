@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"fmt"
+	"errors"
 	"github.com/badrchoubai/services/internal/services"
 	"github.com/badrchoubai/services/internal/services/users"
 	"github.com/badrchoubai/services/internal/validator"
@@ -59,12 +59,12 @@ func (s *Service) GenerateTokenHandler() http.HandlerFunc {
 
 func (s *Service) handleError(w http.ResponseWriter, status int, whatWasHappening string, error error) {
 	type ErrorResponse struct {
-		Error []string `json:"errors"`
-		Count int      `json:"count"`
+		Error string `json:"error"`
+		Count int    `json:"count"`
 	}
 
 	errResponse := &ErrorResponse{
-		Error: []string{error.Error()},
+		Error: error.Error(),
 		Count: 1,
 	}
 
@@ -76,21 +76,21 @@ func (s *Service) handleError(w http.ResponseWriter, status int, whatWasHappenin
 	}
 }
 
-func (s *Service) handleValidationErrors(w http.ResponseWriter, status int, whatWasHappening string, errors map[string]string) {
+func (s *Service) handleValidationErrors(w http.ResponseWriter, status int, whatWasHappening string, validationErrors map[string]string) {
 	type ErrorsResponse struct {
 		Errors map[string]string `json:"errors"`
 		Count  int               `json:"count"`
 	}
 
 	parsedErrors := map[string]string{}
-	for k, ev := range errors {
-		s.Logger.Error(whatWasHappening, fmt.Errorf("%s", k))
+	for k, ev := range validationErrors {
 		parsedErrors[k] = ev
 	}
 
+	s.Logger.Error(whatWasHappening, errors.New("validation errors"))
 	errResponse := &ErrorsResponse{
 		Errors: parsedErrors,
-		Count:  len(errors),
+		Count:  len(validationErrors),
 	}
 
 	encodeErr := s.EncoderDecoder.Encode(w, status, errResponse)
