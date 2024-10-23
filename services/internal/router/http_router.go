@@ -11,15 +11,16 @@ var _ IRouter = (*Router)(nil)
 
 type Router struct {
 	Name       string
-	Handler    *http.ServeMux
-	Logger     *logging.Logger
-	Service    *service.Service
-	Middleware []func(http.Handler) http.Handler
+	handler    *http.ServeMux
+	logger     *logging.Logger
+	service    *service.Service
+	middleware []func(http.Handler) http.Handler
 }
 
 type IRouter interface {
 	ApplyMiddleware(http.Handler) http.Handler
 	WithOptions(opts ...Option) *Router
+	Handler() *http.ServeMux
 
 	clone() *Router
 }
@@ -27,7 +28,7 @@ type IRouter interface {
 func NewRouter(name string, opts ...Option) *Router {
 	router := &Router{
 		Name:    name,
-		Handler: http.NewServeMux(),
+		handler: http.NewServeMux(),
 	}
 
 	return router.WithOptions(opts...)
@@ -36,8 +37,8 @@ func NewRouter(name string, opts ...Option) *Router {
 func (r *Router) ApplyMiddleware(handler http.Handler) http.Handler {
 	// Apply middleware in reverse order, so the first middleware added
 	// is the outermost one in the chain.
-	for i := len(r.Middleware) - 1; i >= 0; i-- {
-		handler = r.Middleware[i](handler)
+	for i := len(r.middleware) - 1; i >= 0; i-- {
+		handler = r.middleware[i](handler)
 	}
 
 	return handler
@@ -59,8 +60,12 @@ func (r *Router) clone() *Router {
 	return &clone
 }
 
+func (r *Router) Handler() *http.ServeMux {
+	return r.handler
+}
+
 // addRoutes is where the entire API surface is mapped
 // https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/#map-the-entire-api-surface-in-routesgo
-func addRoutes(mux *http.ServeMux) {
-	mux.Handle("/*", http.NotFoundHandler())
+func (r *Router) addRoutes(mux *http.ServeMux) {
+	mux.Handle("/", http.NotFoundHandler())
 }

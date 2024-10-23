@@ -16,9 +16,9 @@ func (f optionFunc) apply(service *Service) {
 	f(service)
 }
 
-func WithLogger(logger *logging.Logger) Option {
+func WithDbConnection(conn *database.Database) Option {
 	return optionFunc(func(service *Service) {
-		service.Logger = logger
+		service.DB = conn
 	})
 }
 
@@ -28,8 +28,8 @@ func WithEncoderDecoder(edc *encoding.ServerEncoderDecoder) Option {
 	})
 }
 
-func WithDbConnection(conn *database.Database) Option {
+func WithLogger(logger *logging.Logger) Option {
 	return optionFunc(func(service *Service) {
-		service.DB = conn
+		service.Logger = logger
 	})
 }

@@ -53,7 +53,7 @@ func NewServer(ctx context.Context, cfg *config.AppConfig, router *router.Router
 
 	httpserver := &http.Server{
 		Addr:         net.JoinHostPort(cfg.HttpHost(), strconv.Itoa(cfg.HttpPort())),
-		Handler:      router.ApplyMiddleware(router.Handler),
+		Handler:      router.ApplyMiddleware(router.Handler()),
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 		IdleTimeout:  idleTimeout,

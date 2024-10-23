@@ -44,13 +44,14 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	)
 
 	httpRouter := router.NewRouter(
-		fmt.Sprintf("%s-router", authService.Name),
+		fmt.Sprintf("%s-router", authService.Service().Name),
 		router.WithLogger(logger),
-		router.WithService(authService),
+		router.WithService(authService.Service()),
 		router.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
 		router.WithMiddleware(middleware.Heartbeat("/health")),
 	)
 
+	authService.RegisterRouter(httpRouter.Handler())
 	srv := server.NewServer(ctx, cfg, httpRouter)
 
 	var serveError error
@@ -62,7 +63,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	}()
 
 	logger.Info("server started",
-		zap.String("service", authService.Name))
+		zap.String("service", authService.Service().Name))
 
 	if serveError != nil {
 		return serveError
