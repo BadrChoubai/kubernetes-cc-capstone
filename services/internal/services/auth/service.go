@@ -5,7 +5,8 @@ import "github.com/badrchoubai/services/internal/service"
 var _ IAuthService = (*AuthService)(nil)
 
 type AuthService struct {
-	service *service.Service
+	service  *service.Service
+	handlers []service.Handler
 }
 
 type IAuthService interface {
@@ -13,15 +14,22 @@ type IAuthService interface {
 }
 
 func NewAuthService(name string, opts ...service.Option) *AuthService {
-	svc := service.NewService(name, opts...)
+	mainSvc := service.NewService(name, opts...)
 
-	authSvc := &AuthService{
-		service: svc,
+	svc := &AuthService{
+		service: mainSvc,
+		handlers: []service.Handler{
+			{
+				Path:    "/",
+				Handler: PingHandler,
+			},
+		},
 	}
 
-	return authSvc
+	svc.Service().RegisterRoutes(svc.handlers)
+	return svc
 }
 
-func (as *AuthService) Service() *service.Service {
-	return as.service
+func (p *AuthService) Service() *service.Service {
+	return p.service
 }

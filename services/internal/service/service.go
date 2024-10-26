@@ -1,34 +1,39 @@
 package service
 
 import (
-	"fmt"
+	"github.com/badrchoubai/services/internal/observability/logging"
 	"net/http"
 	"sync"
-
-	"github.com/badrchoubai/services/internal/database"
-	"github.com/badrchoubai/services/internal/encoding"
-	logging "github.com/badrchoubai/services/internal/observability/logging/zap"
 )
 
 var _ IService = (*Service)(nil)
 
 type Service struct {
-	Name           string
-	ServiceMutex   *sync.Mutex
-	Logger         *logging.Logger
-	EncoderDecoder *encoding.ServerEncoderDecoder
-	DB             *database.Database
+	name         string
+	serviceMutex *sync.Mutex
+	serviceMux   *http.ServeMux
+	logger       *logging.Logger
 }
 
 // IService interface
 type IService interface {
 	WithOptions(opts ...Option) *Service
+	Mux() *http.ServeMux
+	Name() string
+	RegisterRoutes(handlers []Handler)
+
+	clone() *Service
+}
+
+type Handler struct {
+	Path    string
+	Handler http.HandlerFunc
 }
 
 func NewService(name string, opts ...Option) *Service {
 	svc := &Service{
-		Name:         name,
-		ServiceMutex: &sync.Mutex{},
+		name:       name,
+		serviceMux: http.NewServeMux(),
 	}
 
 	return svc.WithOptions(opts...)
@@ -49,45 +54,19 @@ func (svc *Service) clone() *Service {
 	return &clone
 }
 
-func (svc *Service) HandleError(w http.ResponseWriter, status int, whatWasHappening string, error error) {
-	type ErrorResponse struct {
-		Error []string `json:"errors"`
-		Count int      `json:"count"`
-	}
-
-	errResponse := &ErrorResponse{
-		Error: []string{error.Error()},
-		Count: 1,
-	}
-
-	svc.Logger.Error(whatWasHappening, error)
-	encodeErr := svc.EncoderDecoder.Encode(w, status, errResponse)
-	if encodeErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+func (svc *Service) Mux() *http.ServeMux {
+	return svc.serviceMux
 }
 
-func (svc *Service) HandleValidationErrors(w http.ResponseWriter, status int, whatWasHappening string, errors map[string]string) {
-	type ErrorsResponse struct {
-		Errors map[string]string `json:"errors"`
-		Count  int               `json:"count"`
-	}
+func (svc *Service) Name() string {
+	return svc.name
+}
 
-	parsedErrors := map[string]string{}
-	for k, ev := range errors {
-		svc.Logger.Error(whatWasHappening, fmt.Errorf("%s", k))
-		parsedErrors[k] = ev
-	}
-
-	errResponse := &ErrorsResponse{
-		Errors: parsedErrors,
-		Count:  len(errors),
-	}
-
-	encodeErr := svc.EncoderDecoder.Encode(w, status, errResponse)
-	if encodeErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+func (svc *Service) RegisterRoutes(handlers []Handler) {
+	for _, handler := range handlers {
+		svc.serviceMux.Handle(
+			handler.Path,
+			handler.Handler,
+		)
 	}
 }

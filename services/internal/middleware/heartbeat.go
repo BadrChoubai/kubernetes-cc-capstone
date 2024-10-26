@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-// Heartbeat logs incoming requests on global HTTP handler
 func Heartbeat(endpoint string) func(http.Handler) http.Handler {
 	f := func(next http.Handler) http.Handler {
 		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
