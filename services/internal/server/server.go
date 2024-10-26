@@ -1,47 +1,51 @@
 package server
 
 import (
-	"fmt"
+	"net"
 	"net/http"
+	"strconv"
 
 	"github.com/badrchoubai/services/internal/config"
 	"github.com/badrchoubai/services/internal/observability/logging"
 	"github.com/badrchoubai/services/internal/service"
 )
 
+var _ IServer = (*Server)(nil)
+
 type Server struct {
 	config      *config.AppConfig
-	handler     *http.ServeMux
+	httpServer  *http.Server
 	logger      *logging.Logger
+	mux         *http.ServeMux
 	middlewares []func(http.Handler) http.Handler
-	service     *service.Service
+	services    []*service.Service
 }
 
 type IServer interface {
 	ApplyMiddleware(http.Handler) http.Handler
-	Handler() *http.ServeMux
-	WithOptions(opts ...Option) *http.ServeMux
+	WithOptions(opts ...Option) *Server
+	HttpServer() *http.Server
 
-	clone() *http.ServeMux
+	clone() *Server
 }
 
-func NewServer(cfg *config.AppConfig, service *service.Service, opts ...Option) *Server {
-	mainMux := http.NewServeMux()
-
-	var servicePath string
-	if service != nil {
-		servicePath = fmt.Sprintf("/%s/", service.Name())
-		mainMux.Handle(servicePath, service.Mux())
-	}
-
-	mainMux.Handle("/*", http.NotFoundHandler())
-
+func NewServer(cfg *config.AppConfig, opts ...Option) *Server {
 	server := &Server{
-		config:  cfg,
-		handler: mainMux,
+		config: cfg,
+		mux:    http.NewServeMux(),
+		httpServer: &http.Server{
+			Addr:    net.JoinHostPort(cfg.HTTPHost(), strconv.Itoa(cfg.HTTPPort())),
+			Handler: nil,
+		},
+	}
+	server = server.WithOptions(opts...)
+
+	for _, svc := range server.services {
+		server.mux.Handle("/"+svc.Name()+"/", http.StripPrefix("/"+svc.Name(), svc.Handler()))
 	}
 
-	return server.WithOptions(opts...)
+	server.httpServer.Handler = server.ApplyMiddleware(server.mux)
+	return server
 }
 
 func (s *Server) ApplyMiddleware(handler http.Handler) http.Handler {
@@ -70,10 +74,6 @@ func (s *Server) clone() *Server {
 	return &clone
 }
 
-func (s *Server) Handler() *http.ServeMux {
-	return s.handler
-}
-
-func (s *Server) Service() *service.Service {
-	return s.service
+func (s *Server) HttpServer() *http.Server {
+	return s.httpServer
 }

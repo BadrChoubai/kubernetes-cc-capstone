@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -20,8 +18,6 @@ import (
 	"github.com/badrchoubai/services/internal/observability"
 	"github.com/badrchoubai/services/internal/observability/logging"
 	"github.com/badrchoubai/services/internal/server"
-	"github.com/badrchoubai/services/internal/service"
-	services "github.com/badrchoubai/services/internal/services/auth"
 )
 
 func main() {
@@ -42,23 +38,12 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	authService := services.NewAuthService(
-		"auth-service",
-		service.WithLogger(logger),
-	)
-
 	srv := server.NewServer(
 		cfg,
-		authService.Service(),
 		server.WithLogger(logger),
 		server.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
 		server.WithMiddleware(middleware.Heartbeat("/health")),
 	)
-
-	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(cfg.HTTPHost(), strconv.Itoa(cfg.HTTPPort())),
-		Handler: srv.ApplyMiddleware(srv.Handler()),
-	}
 
 	var serveError error
 	var wg sync.WaitGroup
@@ -66,8 +51,8 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 
 	go func() {
 		defer wg.Done()
-		logger.Info("starting HTTP server", zap.String("serverUrl", fmt.Sprintf("http://%s", httpServer.Addr))) // Log server start
-		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		logger.Info("starting HTTP server", zap.String("serverUrl", fmt.Sprintf("http://%s", srv.HttpServer().Addr))) // Log server start
+		if err := srv.HttpServer().ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			serveError = err
 			logger.Error("listening and serving", err) // Log server error
 		}
@@ -81,7 +66,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 
-	if err := httpServer.Shutdown(shutdownCtx); err != nil {
+	if err := srv.HttpServer().Shutdown(shutdownCtx); err != nil {
 		logger.Error("shutting down http server", err) // Log shutdown error if any
 	}
 

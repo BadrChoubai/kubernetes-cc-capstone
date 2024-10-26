@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/badrchoubai/services/internal/service"
 	"net/http"
 
 	"github.com/badrchoubai/services/internal/observability/logging"
@@ -25,5 +26,11 @@ func WithLogger(logger *logging.Logger) Option {
 func WithMiddleware(middleware func(http.Handler) http.Handler) Option {
 	return optionFunc(func(server *Server) {
 		server.middlewares = append(server.middlewares, middleware)
+	})
+}
+
+func WithService(service *service.Service) Option {
+	return optionFunc(func(server *Server) {
+		server.services = append(server.services, service)
 	})
 }
