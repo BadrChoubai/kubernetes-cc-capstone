@@ -2,25 +2,36 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go.uber.org/zap"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/badrchoubai/services/internal/config"
-	"github.com/badrchoubai/services/internal/database"
-	"github.com/badrchoubai/services/internal/encoding"
 	"github.com/badrchoubai/services/internal/middleware"
 	"github.com/badrchoubai/services/internal/observability"
-	"github.com/badrchoubai/services/internal/observability/logging/zap"
-	"github.com/badrchoubai/services/internal/router"
+	"github.com/badrchoubai/services/internal/observability/logging"
 	"github.com/badrchoubai/services/internal/server"
 	"github.com/badrchoubai/services/internal/service"
 	services "github.com/badrchoubai/services/internal/services/auth"
 )
+
+func main() {
+	ctx := context.Background()
+	cfg := config.NewConfig()
+
+	if err := run(ctx, cfg); err != nil {
+		log.Fatalf("%+v\n", err)
+	}
+}
 
 func run(ctx context.Context, cfg *config.AppConfig) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
@@ -31,67 +42,55 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	db, err := database.NewConnection(ctx, logger, cfg.DbConn())
-	if err != nil {
-		return err
-	}
-
 	authService := services.NewAuthService(
 		"auth-service",
 		service.WithLogger(logger),
-		service.WithEncoderDecoder(encoding.NewEncoderDecoder(logger)),
-		service.WithDbConnection(db),
 	)
 
-	httpRouter := router.NewRouter(
-		fmt.Sprintf("%s-router", authService.Service().Name),
-		router.WithLogger(logger),
-		router.WithService(authService.Service()),
-		router.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
-		router.WithMiddleware(middleware.Heartbeat("/health")),
+	srv := server.NewServer(
+		cfg,
+		authService.Service(),
+		server.WithLogger(logger),
+		server.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
+		server.WithMiddleware(middleware.Heartbeat("/health")),
 	)
 
-	authService.RegisterRouter(httpRouter.Handler())
-	srv := server.NewServer(ctx, cfg, httpRouter)
+	httpServer := &http.Server{
+		Addr:    net.JoinHostPort(cfg.HTTPHost(), strconv.Itoa(cfg.HTTPPort())),
+		Handler: srv.ApplyMiddleware(srv.Handler()),
+	}
 
 	var serveError error
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	go func() {
-		if err := srv.Serve(); err != nil {
+		defer wg.Done()
+		logger.Info("starting HTTP server", zap.String("serverUrl", fmt.Sprintf("http://%s", httpServer.Addr))) // Log server start
+		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			serveError = err
+			logger.Error("listening and serving", err) // Log server error
 		}
 	}()
 
-	logger.Info("server started",
-		zap.String("service", authService.Service().Name))
+	// Wait for a cancellation signal
+	<-ctx.Done()
+	logger.Info("cancellation signal received, shutting down") // Log cancellation
+
+	// Initiate shutdown
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	if err := httpServer.Shutdown(shutdownCtx); err != nil {
+		logger.Error("shutting down http server", err) // Log shutdown error if any
+	}
+
+	// Wait for the server goroutine to finish
+	wg.Wait()
 
 	if serveError != nil {
 		return serveError
 	}
 
-	// Wait for shutdown signal
-	<-ctx.Done()
-	logger.Info("shutdown signal received")
-
-	// Allow some time for graceful shutdown
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer shutdownCancel()
-	if err := srv.Shutdown(shutdownCtx); err != nil {
-		logger.Error("server shutdown failed", err)
-		return err
-	}
-
 	return nil
-}
-
-func main() {
-	rootCtx := context.Background()
-	cfg := config.NewConfig()
-
-	if err := run(
-		rootCtx,
-		cfg,
-	); err != nil {
-		log.Fatalf("error: %+v", err)
-	}
 }

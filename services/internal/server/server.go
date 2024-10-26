@@ -2,10 +2,11 @@ package server
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/badrchoubai/services/internal/config"
 	"github.com/badrchoubai/services/internal/observability/logging"
 	"github.com/badrchoubai/services/internal/service"
-	"net/http"
 )
 
 type Server struct {

@@ -1,9 +1,10 @@
 package service
 
 import (
-	"github.com/badrchoubai/services/internal/observability/logging"
 	"net/http"
 	"sync"
+
+	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
 var _ IService = (*Service)(nil)

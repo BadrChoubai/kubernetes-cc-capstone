@@ -1,8 +1,9 @@
 package server
 
 import (
-	"github.com/badrchoubai/services/internal/observability/logging"
 	"net/http"
+
+	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
 type Option interface {
