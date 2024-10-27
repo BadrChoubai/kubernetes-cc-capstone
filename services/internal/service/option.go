@@ -18,6 +18,12 @@ func WithLogger(logger *logging.Logger) Option {
 	})
 }
 
+func WithURL(url string) Option {
+	return optionFunc(func(s *Service) {
+		s.url = url
+	})
+}
+
 // WithOptions clones the current Service, applies the supplied Options, and
 // returns the resulting Service. It's safe to use concurrently.
 func (svc *Service) WithOptions(opts ...Option) *Service {

@@ -3,22 +3,28 @@ package service
 import (
 	"github.com/badrchoubai/services/internal/observability/logging"
 	"net/http"
-	"sync"
 )
 
 var _ IService = (*Service)(nil)
 
+type Handler struct {
+	Path    string
+	Handler http.Handler
+}
+
 type Service struct {
-	handler      http.Handler
-	logger       *logging.Logger
-	mux          *http.ServeMux
-	name         string
-	serviceMutex *sync.Mutex
+	logger  *logging.Logger
+	mux     *http.ServeMux
+	handler http.Handler
+	name    string
+
+	url string
 }
 
 // IService interface
 type IService interface {
 	Name() string
+	Handler() http.Handler
 	WithOptions(opts ...Option) *Service
 
 	clone() *Service

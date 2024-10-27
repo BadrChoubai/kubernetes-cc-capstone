@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/badrchoubai/services/internal/service"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -19,6 +18,7 @@ import (
 	"github.com/badrchoubai/services/internal/observability"
 	"github.com/badrchoubai/services/internal/observability/logging"
 	"github.com/badrchoubai/services/internal/server"
+	"github.com/badrchoubai/services/internal/service"
 )
 
 func main() {
@@ -39,10 +39,13 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	svc := service.NewService("auth-service",
+	svc := service.NewService(
+		"auth-service",
+		service.WithURL("/api/v1/auth"),
 		service.WithLogger(logger),
 	)
-	svc.RegisterRoute("/", svc.Index())
+	svc.RegisterRoute("", svc.Index())
+	svc.RegisterRoute("/health", svc.Health())
 
 	srv := server.NewServer(
 		cfg,
