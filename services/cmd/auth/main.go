@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/badrchoubai/services/internal/service"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -38,11 +39,17 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
+	svc := service.NewService("auth-service",
+		service.WithLogger(logger),
+	)
+	svc.RegisterRoute("/", svc.Index())
+
 	srv := server.NewServer(
 		cfg,
 		server.WithLogger(logger),
 		server.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
 		server.WithMiddleware(middleware.Heartbeat("/health")),
+		server.WithService(svc),
 	)
 
 	var serveError error
