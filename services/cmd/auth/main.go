@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/badrchoubai/services/internal/config"
+	"github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/middleware"
 	"github.com/badrchoubai/services/internal/observability"
 	"github.com/badrchoubai/services/internal/observability/logging"
@@ -39,17 +40,23 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
+	db, err := database.NewDatabase(cfg)
+	if err != nil {
+		logger.Error("establishing database connection", err)
+	}
+
 	svc := service.NewService(
 		"auth-service",
 		service.WithURL("/api/v1/auth"),
 		service.WithLogger(logger),
+		service.WithDatabase(db),
 	)
 	svc.RegisterRoute("", svc.Index())
-	svc.RegisterRoute("/health", svc.Health())
 
 	srv := server.NewServer(
 		cfg,
 		server.WithLogger(logger),
+		server.WithMiddleware(middleware.Recover(logger)),
 		server.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
 		server.WithMiddleware(middleware.Heartbeat("/health")),
 		server.WithService(svc),

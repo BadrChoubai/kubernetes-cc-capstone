@@ -1,35 +1,27 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 )
 
+type (
+	IndexResponse struct {
+		Service string `json:"service"`
+	}
+)
+
 func (svc *Service) Index() http.Handler {
+	response := IndexResponse{Service: svc.Name()}
+
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintf(w, "%s Index", svc.name)
+			svc.respond(w, http.StatusOK, response)
 		})
 }
 
-func (svc *Service) Health() http.Handler {
-	apiClient := &http.Client{}
-
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			resp, err := apiClient.Get("http://localhost:8080/health")
-			if err != nil {
-				svc.logger.Error("reaching healthcheck", err)
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode == http.StatusOK {
-				svc.logger.Info("health check passed")
-			} else {
-				svc.logger.Info("health check failed")
-			}
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintf(w, "%d", resp.StatusCode)
-		})
+// respond handles encoding the response and managing any encoding errors.
+func (svc *Service) respond(w http.ResponseWriter, statusCode int, data any) {
+	if err := svc.encoderDecoder.EncodeResponse(w, statusCode, data); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }

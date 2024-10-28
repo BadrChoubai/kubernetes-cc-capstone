@@ -1,6 +1,11 @@
 package service
 
-import "github.com/badrchoubai/services/internal/observability/logging"
+import (
+	_ "github.com/lib/pq"
+
+	"github.com/badrchoubai/services/internal/database"
+	"github.com/badrchoubai/services/internal/observability/logging"
+)
 
 type Option interface {
 	apply(*Service)
@@ -10,6 +15,12 @@ type optionFunc func(*Service)
 
 func (f optionFunc) apply(service *Service) {
 	f(service)
+}
+
+func WithDatabase(database *database.Database) Option {
+	return optionFunc(func(s *Service) {
+		s.database = database
+	})
 }
 
 func WithLogger(logger *logging.Logger) Option {

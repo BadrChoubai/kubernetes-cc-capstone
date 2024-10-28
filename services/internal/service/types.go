@@ -1,30 +1,30 @@
 package service
 
 import (
-	"github.com/badrchoubai/services/internal/observability/logging"
 	"net/http"
+
+	"github.com/badrchoubai/services/internal/database"
+	"github.com/badrchoubai/services/internal/encoding"
+	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
 var _ IService = (*Service)(nil)
 
-type Handler struct {
-	Path    string
-	Handler http.Handler
-}
-
+// Service struct
 type Service struct {
-	logger  *logging.Logger
-	mux     *http.ServeMux
-	handler http.Handler
-	name    string
+	name           string
+	url            string
+	encoderDecoder encoding.EncoderDecoder
 
-	url string
+	// These values are applied by WithOptions
+	database *database.Database
+	logger   *logging.Logger
+	mux      *http.ServeMux
 }
 
 // IService interface
 type IService interface {
 	Name() string
-	Handler() http.Handler
 	WithOptions(opts ...Option) *Service
 
 	clone() *Service
