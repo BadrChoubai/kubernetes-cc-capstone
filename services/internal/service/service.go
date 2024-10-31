@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/badrchoubai/services/internal/encoding"
 	"github.com/badrchoubai/services/internal/observability/logging"
-	"net/http"
 )
 
 // NewServiceMux create a new Mux instance

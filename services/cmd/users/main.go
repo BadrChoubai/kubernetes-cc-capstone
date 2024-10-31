@@ -16,7 +16,7 @@ import (
 	"github.com/badrchoubai/services/internal/observability"
 	"github.com/badrchoubai/services/internal/observability/logging"
 	"github.com/badrchoubai/services/internal/server"
-	"github.com/badrchoubai/services/internal/services/auth"
+	"github.com/badrchoubai/services/internal/services/users"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	service, err := auth.NewAuthService(ctx, cfg)
+	service, err := users.NewUsersService(ctx, cfg)
 	if err != nil {
 		return err
 	}

@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/encoding"
 	"github.com/badrchoubai/services/internal/observability/logging"
-	"net/http"
 )
 
 var _ IService = (*Service)(nil)
