@@ -1,33 +1,44 @@
 package service
 
 import (
-	"net/http"
-
+	"context"
 	"github.com/badrchoubai/services/internal/encoding"
+	"github.com/badrchoubai/services/internal/observability/logging"
+	"net/http"
 )
+
+// NewServiceMux create a new Mux instance
+func NewServiceMux() *Mux {
+	return &Mux{
+		mux: http.NewServeMux(),
+	}
+}
 
 // NewService creates a new Service instance with the specified name and applies any
 // provided options, such as a Logger or Database, to configure the Service.
-func NewService(name string, options ...Option) *Service {
-	mux := http.NewServeMux()
+func NewService(ctx context.Context, options ...Option) *Service {
 	encoderDecoder := encoding.NewEncoderDecoder()
+
 	svc := &Service{
-		name:           name,
-		mux:            mux,
+		ctx:            ctx,
+		mux:            NewServiceMux(),
 		encoderDecoder: encoderDecoder,
 	}
 
 	return svc.WithOptions(options...)
 }
 
-// RegisterRoute adds a new http.Handler to the Service's mux for the specified path.
-// If the provided path is empty, it defaults to the root path ("/").
-func (svc *Service) RegisterRoute(path string, handler http.Handler) {
-	if path == "" {
-		path = "/"
-	}
+func (svc *Service) EncoderDecoder() encoding.EncoderDecoder {
+	return svc.encoderDecoder
+}
 
-	svc.mux.Handle(svc.URL()+path, handler)
+func (svc *Service) Logger() *logging.Logger {
+	return svc.logger
+}
+
+// Mux returns the service Mux http.ServeMux
+func (svc *Service) Mux() *http.ServeMux {
+	return svc.mux.ServeMux()
 }
 
 // Name returns the service name
@@ -40,7 +51,6 @@ func (svc *Service) URL() string {
 	return svc.url
 }
 
-// Mux returns the service HTTP Multiplexer
-func (svc *Service) Mux() *http.ServeMux {
-	return svc.mux
+func (m *Mux) ServeMux() *http.ServeMux {
+	return m.mux
 }

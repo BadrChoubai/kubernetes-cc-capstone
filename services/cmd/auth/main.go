@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
-	"go.uber.org/zap"
+	"github.com/badrchoubai/services/internal/observability/logging"
+	"github.com/badrchoubai/services/internal/services/auth"
 	"log"
 	"net/http"
 	"os"
@@ -14,12 +14,9 @@ import (
 	"time"
 
 	"github.com/badrchoubai/services/internal/config"
-	"github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/middleware"
 	"github.com/badrchoubai/services/internal/observability"
-	"github.com/badrchoubai/services/internal/observability/logging"
 	"github.com/badrchoubai/services/internal/server"
-	"github.com/badrchoubai/services/internal/service"
 )
 
 func main() {
@@ -40,26 +37,20 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	db, err := database.NewDatabase(cfg)
+	authService, err := auth.NewAuthService(ctx, cfg)
 	if err != nil {
-		logger.Error("establishing database connection", err)
+		return err
 	}
-
-	svc := service.NewService(
-		"auth-service",
-		service.WithURL("/api/v1/auth"),
-		service.WithLogger(logger),
-		service.WithDatabase(db),
-	)
-	svc.RegisterRoute("", svc.Index())
 
 	srv := server.NewServer(
 		cfg,
 		server.WithLogger(logger),
-		server.WithMiddleware(middleware.Recover(logger)),
 		server.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
+		server.WithMiddleware(middleware.Recover(logger)),
+		server.WithMiddleware(middleware.Cors(cfg.CORSEnabled(), cfg.CORSTrustedOrigins())),
+		server.WithMiddleware(middleware.RateLimit(cfg.RateLimitEnabled(), cfg.Burst(), cfg.RPS())),
 		server.WithMiddleware(middleware.Heartbeat("/health")),
-		server.WithService(svc),
+		server.WithService(authService),
 	)
 
 	var serveError error
@@ -68,8 +59,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 
 	go func() {
 		defer wg.Done()
-		logger.Info("starting HTTP server", zap.String("serverUrl", fmt.Sprintf("http://%s", srv.HttpServer().Addr))) // Log server start
-		if err := srv.HttpServer().ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := srv.Serve(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			serveError = err
 			logger.Error("listening and serving", err) // Log server error
 		}
@@ -83,7 +73,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 
-	if err := srv.HttpServer().Shutdown(shutdownCtx); err != nil {
+	if err := srv.Shutdown(shutdownCtx); err != nil {
 		logger.Error("shutting down http server", err) // Log shutdown error if any
 	}
 

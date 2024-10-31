@@ -17,6 +17,12 @@ func (f optionFunc) apply(service *Service) {
 	f(service)
 }
 
+func WithName(name string) Option {
+	return optionFunc(func(s *Service) {
+		s.name = name
+	})
+}
+
 func WithDatabase(database *database.Database) Option {
 	return optionFunc(func(s *Service) {
 		s.database = database

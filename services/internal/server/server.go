@@ -1,6 +1,9 @@
 package server
 
 import (
+	"context"
+	"fmt"
+	"go.uber.org/zap"
 	"net"
 	"net/http"
 	"strconv"
@@ -41,7 +44,7 @@ func NewServer(cfg *config.AppConfig, opts ...Option) *Server {
 	server = server.WithOptions(opts...)
 
 	for _, svc := range server.services {
-		server.mux.Handle(svc.URL()+"/", svc.Mux()) // Register with service URL prefix
+		server.mux.Handle(svc.URL()+"/", http.StripPrefix(svc.URL(), svc.Mux())) // Register with service URL prefix
 	}
 
 	server.httpServer.Handler = server.ApplyMiddleware(server.mux)
@@ -77,4 +80,26 @@ func (s *Server) clone() *Server {
 
 func (s *Server) HttpServer() *http.Server {
 	return s.httpServer
+}
+
+func (s *Server) Serve() error {
+	s.logger.Info("starting HTTP server", zap.String("serverUrl", fmt.Sprintf("http://%s", s.httpServer.Addr)))
+
+	err := s.httpServer.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.logger.Info("HTTP server shut down")
+
+	err := s.httpServer.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

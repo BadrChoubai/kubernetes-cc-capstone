@@ -28,8 +28,9 @@ type (
 	}
 
 	RateLimiterSettings struct {
-		burst int
-		rps   int
+		burst   int
+		enabled bool
+		rps     int
 	}
 
 	Config interface {
@@ -47,6 +48,7 @@ type (
 		ConnMaxIdleTime() time.Duration
 		ConnMaxLifetime() time.Duration
 
+		RateLimitEnabled() bool
 		RPS() int
 		Burst() int
 	}
