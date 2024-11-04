@@ -23,9 +23,11 @@ func WithLogger(logger *logging.Logger) Option {
 	})
 }
 
-func WithMiddleware(middleware func(http.Handler) http.Handler) Option {
+func WithMiddleware(middleware ...func(http.Handler) http.Handler) Option {
 	return optionFunc(func(server *Server) {
-		server.middlewares = append(server.middlewares, middleware)
+		for _, m := range middleware {
+			server.middlewares = append(server.middlewares, m)
+		}
 	})
 }
 

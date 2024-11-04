@@ -4,15 +4,37 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/encoding"
 	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
-// NewServiceMux create a new Mux instance
-func NewServiceMux() *Mux {
-	return &Mux{
-		mux: http.NewServeMux(),
-	}
+var _ IService = (*Service)(nil)
+
+// Service struct
+type Service struct {
+	ctx            context.Context
+	name           string
+	url            string
+	encoderDecoder encoding.EncoderDecoder
+
+	// These values are applied by WithOptions
+	database    *database.Database
+	logger      *logging.Logger
+	middlewares []func(http.Handler) http.Handler
+	mux         *http.ServeMux
+}
+
+// IService interface
+type IService interface {
+	Name() string
+	WithOptions(opts ...Option) *Service
+
+	EncoderDecoder() encoding.EncoderDecoder
+	Logger() *logging.Logger
+	Mux() *http.ServeMux
+
+	clone() *Service
 }
 
 // NewService creates a new Service instance with the specified name and applies any
@@ -22,7 +44,7 @@ func NewService(ctx context.Context, options ...Option) *Service {
 
 	svc := &Service{
 		ctx:            ctx,
-		mux:            NewServiceMux(),
+		mux:            http.NewServeMux(),
 		encoderDecoder: encoderDecoder,
 	}
 
@@ -37,9 +59,9 @@ func (svc *Service) Logger() *logging.Logger {
 	return svc.logger
 }
 
-// Mux returns the service Mux http.ServeMux
+// Mux returns the service http.ServeMux
 func (svc *Service) Mux() *http.ServeMux {
-	return svc.mux.ServeMux()
+	return svc.mux
 }
 
 // Name returns the service name
@@ -50,8 +72,4 @@ func (svc *Service) Name() string {
 // URL returns the service url
 func (svc *Service) URL() string {
 	return svc.url
-}
-
-func (m *Mux) ServeMux() *http.ServeMux {
-	return m.mux
 }

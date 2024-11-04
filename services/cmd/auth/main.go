@@ -37,7 +37,7 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	service, err := auth.NewAuthService(ctx, cfg)
+	service, err := auth.NewAuthService(ctx, cfg, logger)
 	if err != nil {
 		return err
 	}
@@ -45,11 +45,13 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 	srv := server.NewServer(
 		cfg,
 		server.WithLogger(logger),
-		server.WithMiddleware(observability.RequestLoggingMiddleware(logger)),
-		server.WithMiddleware(middleware.Recover(logger)),
-		server.WithMiddleware(middleware.Cors(cfg.CORSEnabled(), cfg.CORSTrustedOrigins())),
-		server.WithMiddleware(middleware.RateLimit(cfg.RateLimitEnabled(), cfg.Burst(), cfg.RPS())),
-		server.WithMiddleware(middleware.Heartbeat("/health")),
+		server.WithMiddleware(
+			observability.RequestLoggingMiddleware(logger),
+			middleware.Recover(logger),
+			middleware.Cors(cfg.CORSEnabled(), cfg.CORSTrustedOrigins()),
+			middleware.RateLimit(cfg.RateLimitEnabled(), cfg.Burst(), cfg.RPS()),
+			middleware.Heartbeat("/health"),
+		),
 		server.WithService(service),
 	)
 

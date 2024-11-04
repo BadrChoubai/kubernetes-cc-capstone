@@ -13,11 +13,11 @@ type (
 )
 
 func addRoutes(svc *service.Service) {
-	svc.Mux().Handle("/health", Healthz(svc))
+	svc.Mux().Handle("/generateToken", generateToken(svc))
 	svc.Mux().Handle("/", http.NotFoundHandler())
 }
 
-func Healthz(svc *service.Service) http.Handler {
+func generateToken(svc *service.Service) http.Handler {
 	response := &Response{
 		Service: svc.Name(),
 	}

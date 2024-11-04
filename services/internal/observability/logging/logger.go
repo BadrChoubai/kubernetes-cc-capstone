@@ -1,6 +1,8 @@
 package logging
 
-import "go.uber.org/zap"
+import (
+	"go.uber.org/zap"
+)
 
 var _ Log = (*Logger)(nil)
 
@@ -27,7 +29,7 @@ func (l *Logger) Debug(message string, fields ...zap.Field) {
 }
 
 func NewLogger() (*Logger, error) {
-	zapLogger, err := zap.NewDevelopment()
+	zapLogger, err := zap.NewProduction()
 	if err != nil {
 		return nil, err
 	}

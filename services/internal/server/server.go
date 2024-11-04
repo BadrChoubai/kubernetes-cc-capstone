@@ -13,7 +13,7 @@ import (
 	"github.com/badrchoubai/services/internal/service"
 )
 
-var _ IServer = (*Server)(nil)
+var _ HTTPServer = (*Server)(nil)
 
 type Server struct {
 	config      *config.AppConfig
@@ -24,7 +24,7 @@ type Server struct {
 	services    []*service.Service
 }
 
-type IServer interface {
+type HTTPServer interface {
 	ApplyMiddleware(http.Handler) http.Handler
 	WithOptions(opts ...Option) *Server
 	HttpServer() *http.Server
