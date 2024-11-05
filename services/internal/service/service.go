@@ -1,16 +1,35 @@
+/*
+Package service provides an abstraction for managing microservices within the application.
+
+It defines the Service struct, which encapsulates the core functionality for handling
+service-specific logic, including HTTP request routing, encoding and decoding of
+messages, and middleware management. The IService interface outlines the methods
+that must be implemented by any service, ensuring a consistent contract for
+service behavior.
+
+Key features of the package include:
+
+  - Creation of service instances through the NewService function, which supports
+    flexible configuration via options.
+  - Name validation for services to enforce a specific naming convention.
+  - Support for encoding/decoding messages.
+
+This package serves as a foundational component for building RESTful APIs and microservices
+within the broader application architecture.
+*/
 package service
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 	"regexp"
 	"strings"
 
 	"github.com/badrchoubai/services/internal/database"
 	"github.com/badrchoubai/services/internal/encoding"
-	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
 var _ IService = (*Service)(nil)
@@ -23,15 +42,14 @@ type Service struct {
 	encoderDecoder encoding.EncoderDecoder
 
 	// These values are applied by WithOptions
-	database    *database.Database
-	logger      *logging.Logger
-	middlewares []func(http.Handler) http.Handler
-	mux         *http.ServeMux
+	database *database.Database
+	logger   *zap.Logger
+	mux      *http.ServeMux
 }
 
 var (
-	InvalidNameError  = errors.New("invalid service name format, expected <resource>-service-v<version>")
-	NameCheckingError = errors.New("error checking name format")
+	errInvalidName  = errors.New("invalid service name format, expected <resource>-service-v<version>")
+	errCheckingName = errors.New("error checking name format")
 )
 
 // IService interface
@@ -40,7 +58,6 @@ type IService interface {
 	WithOptions(opts ...Option) *Service
 
 	EncoderDecoder() encoding.EncoderDecoder
-	Logger() *logging.Logger
 	Mux() *http.ServeMux
 
 	clone() *Service
@@ -77,11 +94,11 @@ func validateName(name string) error {
 
 	matched, err := regexp.MatchString(pattern, name)
 	if err != nil {
-		return NameCheckingError
+		return errCheckingName
 	}
 
 	if !matched {
-		return InvalidNameError
+		return errInvalidName
 	}
 
 	return nil
@@ -99,12 +116,9 @@ func makePathFromName(name string) (string, error) {
 	return path, nil
 }
 
+// EncoderDecoder returns the service encoding.EncoderDecoder
 func (svc *Service) EncoderDecoder() encoding.EncoderDecoder {
 	return svc.encoderDecoder
-}
-
-func (svc *Service) Logger() *logging.Logger {
-	return svc.logger
 }
 
 // Mux returns the service http.ServeMux

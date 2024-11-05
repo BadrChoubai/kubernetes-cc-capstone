@@ -2,18 +2,19 @@ package middleware
 
 import (
 	"errors"
+	"go.uber.org/zap"
 	"net/http"
 	"strings"
 
 	"github.com/badrchoubai/services/internal/encoding"
-	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
 type errorResponse struct {
 	ApplicationError map[string]any `json:"applicationError"`
 }
 
-func Recover(logger *logging.Logger) func(next http.Handler) http.Handler {
+// Recover handles panic and continues running application
+func Recover(logger *zap.Logger) Middleware {
 	encoderDecoder := encoding.NewEncoderDecoder()
 
 	f := func(next http.Handler) http.Handler {
@@ -44,7 +45,7 @@ func Recover(logger *logging.Logger) func(next http.Handler) http.Handler {
 
 					response.ApplicationError = errMap
 
-					logger.Error("application error", errors.New(errMsg))
+					logger.Error("application error", zap.Error(errors.New(errMsg)))
 					_ = encoderDecoder.EncodeResponse(w, http.StatusInternalServerError, response)
 				}
 			}()

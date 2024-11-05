@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-func RateLimit(enabled bool, burst, rps int) func(http.Handler) http.Handler {
+// RateLimit handles server rate-limiting
+func RateLimit(enabled bool, burst, rps int) Middleware {
 	type client struct {
 		limiter  *rate.Limiter
 		lastSeen time.Time

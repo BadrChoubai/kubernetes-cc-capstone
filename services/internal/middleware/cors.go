@@ -5,7 +5,7 @@ import (
 )
 
 // Cors middleware
-func Cors(enabled bool, trustedOrigins []string) func(http.Handler) http.Handler {
+func Cors(enabled bool, trustedOrigins []string) Middleware {
 	f := func(next http.Handler) http.Handler {
 		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if enabled {

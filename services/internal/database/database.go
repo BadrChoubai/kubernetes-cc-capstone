@@ -1,3 +1,4 @@
+// Package database handles database
 package database
 
 import (
@@ -9,20 +10,24 @@ import (
 
 var _ IDatabase = (*Database)(nil)
 
+// Database struct
 type Database struct {
 	db *sql.DB
 }
 
+// IDatabase interface
 type IDatabase interface {
 	Close() error
 	DB() *sql.DB
 	Ping(ctx context.Context) error
 }
 
+// DB returns pointer reference of sql.DB on Database
 func (d *Database) DB() *sql.DB {
 	return d.db
 }
 
+// Close calls *sql.DB Close() returning an error
 func (d *Database) Close() error {
 	if err := d.db.Close(); err != nil {
 		return err
@@ -30,10 +35,12 @@ func (d *Database) Close() error {
 	return nil
 }
 
+// Ping calls *sql.DB PingContext
 func (d *Database) Ping(ctx context.Context) error {
 	return d.db.PingContext(ctx)
 }
 
+// NewDatabase creates database connection returning a new instance of Database or error
 func NewDatabase(cfg *config.AppConfig) (*Database, error) {
 	db, err := connect(cfg)
 	if err != nil {

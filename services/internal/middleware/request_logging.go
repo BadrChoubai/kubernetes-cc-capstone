@@ -1,15 +1,13 @@
-package observability
+package middleware
 
 import (
 	"go.uber.org/zap"
 	"net/http"
 	"time"
-
-	"github.com/badrchoubai/services/internal/observability/logging"
 )
 
-// RequestLoggingMiddleware logs incoming requests on global HTTP handler
-func RequestLoggingMiddleware(logger *logging.Logger) func(http.Handler) http.Handler {
+// RequestLogging middleware to log incoming requests on global HTTP handler
+func RequestLogging(logger *zap.Logger) Middleware {
 	f := func(next http.Handler) http.Handler {
 		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			r.Context().Value("")

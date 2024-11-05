@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-func Heartbeat(endpoint string) func(http.Handler) http.Handler {
+// Heartbeat middleware handles healthcheck endpoint
+func Heartbeat(endpoint string) Middleware {
 	f := func(next http.Handler) http.Handler {
 		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if (r.Method == "GET" || r.Method == "HEAD") && strings.EqualFold(r.URL.Path, endpoint) {

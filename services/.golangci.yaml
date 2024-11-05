@@ -62,4 +62,6 @@ output:
 run:
   concurrency: 8
   timeout: 5m
+  skip-dirs:
+    - vendor
 
