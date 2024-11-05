@@ -44,7 +44,7 @@ func NewServer(cfg *config.AppConfig, opts ...Option) *Server {
 	server = server.WithOptions(opts...)
 
 	for _, svc := range server.services {
-		server.mux.Handle(svc.URL()+"/", http.StripPrefix(svc.URL(), svc.Mux())) // Register with service URL prefix
+		server.mux.Handle(svc.Path()+"/", http.StripPrefix(svc.Path(), svc.Mux())) // Register with service Path prefix
 	}
 
 	server.httpServer.Handler = server.ApplyMiddleware(server.mux)

@@ -17,12 +17,6 @@ func (f optionFunc) apply(service *Service) {
 	f(service)
 }
 
-func WithName(name string) Option {
-	return optionFunc(func(s *Service) {
-		s.name = name
-	})
-}
-
 func WithDatabase(database *database.Database) Option {
 	return optionFunc(func(s *Service) {
 		s.database = database
@@ -32,12 +26,6 @@ func WithDatabase(database *database.Database) Option {
 func WithLogger(logger *logging.Logger) Option {
 	return optionFunc(func(s *Service) {
 		s.logger = logger
-	})
-}
-
-func WithURL(url string) Option {
-	return optionFunc(func(s *Service) {
-		s.url = url
 	})
 }
 

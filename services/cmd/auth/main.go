@@ -37,7 +37,12 @@ func run(ctx context.Context, cfg *config.AppConfig) error {
 		return err
 	}
 
-	service, err := auth.NewAuthService(ctx, cfg, logger)
+	service, err := auth.NewAuthService(
+		ctx,
+		cfg,
+		logger,
+	)
+
 	if err != nil {
 		return err
 	}

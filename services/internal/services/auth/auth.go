@@ -17,14 +17,18 @@ func NewAuthService(ctx context.Context, cfg *config.AppConfig, logger *logging.
 		return nil, err
 	}
 
-	svc := service.NewService(
+	svc, err := service.NewService(
 		ctx,
-		service.WithName("auth-service"),
-		service.WithURL("/api/v1/auth"),
+		"auth-service-v1",
 		service.WithLogger(logger),
 		service.WithDatabase(db),
 	)
 
-	addRoutes(svc)
-	return svc, nil
+	if svc != nil {
+		addRoutes(svc)
+
+		return svc, nil
+	}
+
+	return nil, err
 }
