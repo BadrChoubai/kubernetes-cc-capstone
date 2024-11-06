@@ -66,8 +66,6 @@ func createStdLibHTTPServer(cfg *config.AppConfig) *http.Server {
 			CipherSuites: []uint16{
 				tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-				tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 			},
@@ -111,11 +109,29 @@ func (s *Server) clone() *Server {
 // Serve starts the HTTP server and listens for incoming requests.
 // It logs the server's URL and returns any error encountered while starting the server.
 func (s *Server) Serve() error {
-	s.logger.Info("starting HTTP server", zap.String("serverUrl", fmt.Sprintf("http://%s", s.httpServer.Addr)))
+	s.logger.Info("starting server")
 
-	err := s.httpServer.ListenAndServe()
-	if err != nil {
-		return err
+	if s.config.HTTPSCertificateFilePath() != "" && s.config.HTTPSCertificateKeyFilePath() != "" {
+		s.logger.Info(
+			"serving HTTPS",
+			zap.String("serverUrl", fmt.Sprintf("https://%s", s.httpServer.Addr)),
+		)
+
+		if err := s.httpServer.ListenAndServeTLS(
+			s.config.HTTPSCertificateFilePath(),
+			s.config.HTTPSCertificateKeyFilePath(),
+		); err != nil {
+			return err
+		}
+	} else {
+		s.logger.Info(
+			"serving HTTP",
+			zap.String("serverUrl", fmt.Sprintf("http://%s", s.httpServer.Addr)),
+		)
+
+		if err := s.httpServer.ListenAndServe(); err != nil {
+			return err
+		}
 	}
 
 	return nil

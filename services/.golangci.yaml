@@ -7,6 +7,9 @@ issues:
   # This includes documenting all exported entities.
   exclude-use-default: false
 
+  exclude-dirs:
+    - vendor
+
   exclude-rules:
     # Don't warn on unused parameters.
     # Parameter names are useful; replacing them with '_' is undesirable.
@@ -62,6 +65,3 @@ output:
 run:
   concurrency: 8
   timeout: 5m
-  skip-dirs:
-    - vendor
-

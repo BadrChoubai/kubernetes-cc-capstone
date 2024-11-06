@@ -17,10 +17,12 @@ type (
 	// AppConfig holds the overall application configuration, including
 	// environment, HTTP settings, logging level, and other nested settings.
 	AppConfig struct {
-		environment string
-		httpHost    string
-		httpPort    int
-		logLevel    int
+		environment                 string
+		httpHost                    string
+		httpPort                    int
+		httpsCertificateFilePath    string
+		httpsCertificateKeyFilePath string
+		logLevel                    int
 
 		corsSettings        CORSSettings
 		databaseSettings    DatabaseSettings
@@ -53,7 +55,6 @@ type (
 	// ServerSettings defines timeout settings for the server.
 	ServerSettings struct {
 		idleTimeout  time.Duration
-		maxTimeout   time.Duration
 		readTimeout  time.Duration
 		writeTimeout time.Duration
 	}
@@ -63,6 +64,8 @@ type (
 		Environment() string
 		HTTPHost() string
 		HTTPPort() int
+		HTTPSCertificateFilePath() string
+		HTTPSCertificateKeyFilePath() string
 		LogLevel() int
 
 		CORSEnabled() bool
@@ -79,7 +82,6 @@ type (
 		Burst() int
 
 		IdleTimeout() time.Duration
-		MaxTimeout() time.Duration
 		ReadTimeout() time.Duration
 		WriteTimeout() time.Duration
 	}
@@ -98,10 +100,12 @@ type Builder struct{}
 // when necessary.
 func (cb *Builder) Build() *AppConfig {
 	cfg := &AppConfig{
-		environment: cb.getenv("ENVIRONMENT", "development"),
-		httpHost:    cb.getenv("HTTP_HOST", "0.0.0.0"),
-		httpPort:    cb.getenvInt("HTTP_PORT", 8080),
-		logLevel:    cb.getenvInt("LOG_LEVEL", 1),
+		environment:                 cb.getenv("ENVIRONMENT", "development"),
+		httpHost:                    cb.getenv("HTTP_HOST", "0.0.0.0"),
+		httpPort:                    cb.getenvInt("HTTP_PORT", 8080),
+		httpsCertificateFilePath:    cb.getenv("HTTPS_CERTIFICATE_FILE_PATH", ""),
+		httpsCertificateKeyFilePath: cb.getenv("HTTPS_CERTIFICATE_KEY_FILE_PATH", ""),
+		logLevel:                    cb.getenvInt("LOG_LEVEL", 1),
 
 		corsSettings: CORSSettings{
 			corsEnabled:    cb.getenvBool("CORS_ENABLED", false),
@@ -156,6 +160,12 @@ func (c *AppConfig) HTTPHost() string { return c.httpHost }
 // HTTPPort returns the port for the HTTP server.
 func (c *AppConfig) HTTPPort() int { return c.httpPort }
 
+// HTTPSCertificateFilePath returns the HTTPS certificate file path
+func (c *AppConfig) HTTPSCertificateFilePath() string { return c.httpsCertificateFilePath }
+
+// HTTPSCertificateKeyFilePath returns the HTTPS certificate key file path
+func (c *AppConfig) HTTPSCertificateKeyFilePath() string { return c.httpsCertificateKeyFilePath }
+
 // LogLevel returns the log level for the application.
 func (c *AppConfig) LogLevel() int { return c.logLevel }
 
@@ -173,9 +183,6 @@ func (c *AppConfig) RateLimitEnabled() bool { return c.rateLimiterSettings.enabl
 
 // IdleTimeout returns the idle timeout duration for the server.
 func (c *AppConfig) IdleTimeout() time.Duration { return c.serverSettings.idleTimeout }
-
-// MaxTimeout returns the maximum timeout duration for the server.
-func (c *AppConfig) MaxTimeout() time.Duration { return c.serverSettings.maxTimeout }
 
 // ReadTimeout returns the read timeout duration for the server.
 func (c *AppConfig) ReadTimeout() time.Duration { return c.serverSettings.readTimeout }
