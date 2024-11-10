@@ -45,16 +45,20 @@ import (
 
 func main() {
 	ctx := context.Background()
-	cfg := config.NewConfig()
 
-	if err := run(ctx, cfg); err != nil {
+	if err := run(ctx); err != nil {
 		log.Fatalf("%+v\n", err)
 	}
 }
 
-func run(ctx context.Context, cfg *config.AppConfig) error {
+func run(ctx context.Context) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+
+	cfg, err := config.NewConfig()
+	if err != nil {
+		return err
+	}
 
 	logger, err := zap.NewProduction()
 	if err != nil {

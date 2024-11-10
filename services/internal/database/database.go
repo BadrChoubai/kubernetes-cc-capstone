@@ -4,7 +4,6 @@ package database
 import (
 	"context"
 	"database/sql"
-
 	"github.com/badrchoubai/services/internal/config"
 )
 
@@ -41,8 +40,8 @@ func (d *Database) Ping(ctx context.Context) error {
 }
 
 // NewDatabase creates database connection returning a new instance of Database or error
-func NewDatabase(cfg *config.AppConfig) (*Database, error) {
-	db, err := connect(cfg)
+func NewDatabase(ctx context.Context, cfg config.AppConfig) (*Database, error) {
+	db, err := connect(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +51,8 @@ func NewDatabase(cfg *config.AppConfig) (*Database, error) {
 	}, nil
 }
 
-func connect(cfg *config.AppConfig) (*sql.DB, error) {
+func connect(ctx context.Context, cfg config.AppConfig) (*sql.DB, error) {
+	// Open database connection
 	db, err := sql.Open("postgres", cfg.DbConnectionString())
 	if err != nil {
 		return nil, err
@@ -61,6 +61,12 @@ func connect(cfg *config.AppConfig) (*sql.DB, error) {
 	db.SetMaxIdleConns(cfg.MaxIdleConns())
 	db.SetConnMaxIdleTime(cfg.ConnMaxIdleTime())
 	db.SetConnMaxLifetime(cfg.ConnMaxLifetime())
+
+	// Verify database connection
+	err = db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }

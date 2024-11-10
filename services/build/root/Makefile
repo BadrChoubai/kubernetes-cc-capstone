@@ -11,7 +11,7 @@ BUILD_DIRS := .dist/$(OS)_$(ARCH)	\
               .go/pkg
 
 all: # @HELP builds binaries for one platform ($OS/$ARCH)
-all: build
+all: build images push
 
 build: # @HELP for each BIN, build binary and place into /bin/$(OS)_$(ARCH)
 build: $(BINS)
@@ -25,7 +25,7 @@ $(BINS): $(BUILD_DIRS)
 	    -v $$(pwd):/src                                         \
 	    -w /src                                                 \
 		-v $$(pwd)/.dist/$(OS)_$(ARCH):/.dist                   \
-		-v $$(pwd)/.go/cache:/.cache								\
+		-v $$(pwd)/.go/cache:/.cache							\
 	    --env GOCACHE="/.cache/gocache"                         \
 	    --env GOMODCACHE="/.cache/gomodcache"                   \
 	    --env ARCH="$(ARCH)"                                    \

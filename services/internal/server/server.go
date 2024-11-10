@@ -20,7 +20,7 @@ var _ HTTPServer = (*Server)(nil)
 
 // Server represents an HTTP server with configuration, middleware, and service management.
 type Server struct {
-	config      *config.AppConfig
+	config      config.AppConfig
 	httpServer  *http.Server
 	logger      *zap.Logger
 	mux         *http.ServeMux
@@ -39,7 +39,7 @@ type HTTPServer interface {
 
 // NewServer initializes a new Server instance with the provided configuration and options.
 // It sets up the HTTP server, registers services with the router, and applies middleware to handle requests.kkk
-func NewServer(cfg *config.AppConfig, opts ...Option) *Server {
+func NewServer(cfg config.AppConfig, opts ...Option) *Server {
 	server := &Server{
 		config:     cfg,
 		mux:        http.NewServeMux(),
@@ -56,7 +56,7 @@ func NewServer(cfg *config.AppConfig, opts ...Option) *Server {
 	return server
 }
 
-func createStdLibHTTPServer(cfg *config.AppConfig) *http.Server {
+func createStdLibHTTPServer(cfg config.AppConfig) *http.Server {
 	return &http.Server{
 		Addr:         net.JoinHostPort(cfg.HTTPHost(), strconv.Itoa(cfg.HTTPPort())),
 		IdleTimeout:  cfg.IdleTimeout(),
