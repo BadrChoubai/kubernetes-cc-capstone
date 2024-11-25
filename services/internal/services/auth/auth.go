@@ -26,7 +26,7 @@ func NewAuthService(ctx context.Context, cfg config.AppConfig, logger *zap.Logge
 
 	svc, err := service.NewService(
 		ctx,
-		"auth-service-v1",
+		"auth-v1",
 		service.WithLogger(logger),
 		service.WithDatabase(db),
 	)

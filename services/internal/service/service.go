@@ -48,7 +48,7 @@ type Service struct {
 }
 
 var (
-	errInvalidName  = errors.New("invalid service name format, expected <resource>-service-v<version>")
+	errInvalidName  = errors.New("invalid service name format, expected <resource>-v<version>")
 	errCheckingName = errors.New("error checking name format")
 )
 
@@ -89,7 +89,7 @@ func NewService(ctx context.Context, name string, options ...Option) (*Service, 
 
 func validateName(name string) error {
 	var (
-		pattern = `^[a-z]+-service-v[0-9]+$`
+		pattern = `^[a-z]+-v[0-9]+$`
 	)
 
 	matched, err := regexp.MatchString(pattern, name)
@@ -111,7 +111,7 @@ func makePathFromName(name string) (string, error) {
 
 	path := "/api/%s/%s"
 	parts := strings.Split(name, "-")
-	path = fmt.Sprintf(path, parts[2], parts[0])
+	path = fmt.Sprintf(path, parts[1], parts[0])
 
 	return path, nil
 }

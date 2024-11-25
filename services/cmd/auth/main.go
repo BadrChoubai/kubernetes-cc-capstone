@@ -28,7 +28,6 @@ package main
 import (
 	"context"
 	"errors"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"os"
@@ -36,6 +35,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/badrchoubai/services/internal/config"
 	"github.com/badrchoubai/services/internal/middleware"
