@@ -75,7 +75,16 @@ push: image
 lint: # HELP runs golangci-lint linters
 lint:
 	golangci-lint run
-	$(MAKE) -C ./api swag-fmt
+
+run: # HELP run a single application
+run:
+	@echo "$(BINS)"
+	@read -p "Select an application to run: " selection; \
+	if echo "$(BINS)" | grep -wq $$selection; then \
+	    $(PWD)/build/scripts/run-locally.sh $$selection \
+	else \
+	  printf  "application: \"%s\", does not exist.\n" $$selection; \
+	fi
 
 ####################################################################################################
 # Database Tasks

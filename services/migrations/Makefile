@@ -2,8 +2,8 @@
 # Database Tasks
 ####################################################################################################
 
-db/psql: # @HELP connect to locally running database
-db/psql:
+db/connect/psql: # @HELP connect to locally running database
+db/connect/psql:
 	psql ${DB_CONNECTION_STRING}
 
 db/migrations/up: # @HELP run migrations to create database tables
