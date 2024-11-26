@@ -73,10 +73,25 @@ push: image
 	echo
 
 lint: # HELP runs golangci-lint linters
-lint:
-	golangci-lint run
+	@if golangci-lint run; then \
+		echo "golangci-lint ran successfully"; \
+	else \
+		echo "golangci-lint failed to lint project files"; \
+		read -p "Would you like to try running it again with --fix (y/n)? " selection; \
+		if [ "$$selection" = "y" ]; then \
+			echo "Running golangci-lint with --fix..."; \
+			golangci-lint run --fix; \
+			if [ $$? -eq 0 ]; then \
+				echo "golangci-lint ran successfully with --fix"; \
+			else \
+				echo "golangci-lint still failed to lint project files."; \
+			fi; \
+		else \
+			echo "Skipping fix attempt. Please review the linting errors."; \
+		fi; \
+	fi
 
-run: # HELP run a single application
+run: # HELP select and run a single application
 run:
 	@echo "$(BINS)"
 	@read -p "Select an application to run: " selection; \

@@ -13,7 +13,7 @@ import (
 )
 
 // NewAuthService creates a new service for handling Authentication and Authorization
-func NewAuthService(ctx context.Context, cfg config.AppConfig, logger *zap.Logger) (*service.Service, error) {
+func NewAuthService(ctx context.Context, cfg *config.AppConfig, logger *zap.Logger) (*service.Service, error) {
 	db, err := database.NewDatabase(ctx, cfg)
 	if err != nil {
 		logger.Error(
